@@ -61,6 +61,7 @@ export interface Database {
           latitude: number | null
           longitude: number | null
           image_url: string | null
+          additional_images?: string[] | null
           private_identifying_details: string
           status: 'REPORTED' | 'MATCH_PENDING' | 'CLAIM_SUBMITTED' | 'VERIFIED' | 'RETURNED' | 'CLOSED'
           created_at: string
@@ -82,6 +83,7 @@ export interface Database {
           latitude?: number | null
           longitude?: number | null
           image_url?: string | null
+          additional_images?: string[] | null
           private_identifying_details: string
           status?: 'REPORTED' | 'MATCH_PENDING' | 'CLAIM_SUBMITTED' | 'VERIFIED' | 'RETURNED' | 'CLOSED'
           created_at?: string
@@ -103,6 +105,7 @@ export interface Database {
           latitude?: number | null
           longitude?: number | null
           image_url?: string | null
+          additional_images?: string[] | null
           private_identifying_details?: string
           status?: 'REPORTED' | 'MATCH_PENDING' | 'CLAIM_SUBMITTED' | 'VERIFIED' | 'RETURNED' | 'CLOSED'
           created_at?: string
@@ -126,6 +129,7 @@ export interface Database {
           latitude: number | null
           longitude: number | null
           image_url: string | null
+          additional_images?: string[] | null
           custody_type: 'WITH_FINDER' | 'POLICE_STATION' | 'SECURITY_DESK' | 'LOST_AND_FOUND_OFFICE'
           custody_details: string | null
           status: 'AVAILABLE' | 'CLAIM_UNDER_REVIEW' | 'OWNERSHIP_VERIFIED' | 'RETURNED' | 'CLOSED'
@@ -148,6 +152,7 @@ export interface Database {
           latitude?: number | null
           longitude?: number | null
           image_url?: string | null
+          additional_images?: string[] | null
           custody_type?: 'WITH_FINDER' | 'POLICE_STATION' | 'SECURITY_DESK' | 'LOST_AND_FOUND_OFFICE'
           custody_details?: string | null
           status?: 'AVAILABLE' | 'CLAIM_UNDER_REVIEW' | 'OWNERSHIP_VERIFIED' | 'RETURNED' | 'CLOSED'
@@ -170,6 +175,7 @@ export interface Database {
           latitude?: number | null
           longitude?: number | null
           image_url?: string | null
+          additional_images?: string[] | null
           custody_type?: 'WITH_FINDER' | 'POLICE_STATION' | 'SECURITY_DESK' | 'LOST_AND_FOUND_OFFICE'
           custody_details?: string | null
           status?: 'AVAILABLE' | 'CLAIM_UNDER_REVIEW' | 'OWNERSHIP_VERIFIED' | 'RETURNED' | 'CLOSED'

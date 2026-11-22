@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_STATES, getCitiesForState, ITEM_COLORS } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
+import MultiImageUpload from '@/components/forms/MultiImageUpload';
 import Select from '@/components/ui/Select';
 import DatePicker from '@/components/ui/DatePicker';
 import { Lock, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
@@ -36,7 +37,7 @@ export default function ReportLostPage() {
     }
   };
   const [approximateLocation, setApproximateLocation] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [privateDetails, setPrivateDetails] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,6 +53,8 @@ export default function ReportLostPage() {
         return;
       }
 
+      const validImages = images.filter((img) => img && img.trim() !== '');
+
       const { data, error: insertError } = await (supabase
         .from('lost_items') as any)
         .insert({
@@ -66,7 +69,8 @@ export default function ReportLostPage() {
           state,
           city,
           approximate_location: approximateLocation.trim(),
-          image_url: imageUrl,
+          image_url: validImages[0] || null,
+          additional_images: validImages,
           private_identifying_details: privateDetails.trim(),
           status: 'REPORTED',
         })
@@ -314,13 +318,14 @@ export default function ReportLostPage() {
         {/* Section 3: Photograph */}
         <div className="rounded-lg border border-border-subtle bg-surface p-6 shadow-sm space-y-4">
           <h2 className="text-base font-semibold text-text-primary border-b border-border-subtle pb-3">
-            3. Photograph (Optional)
+            3. Photographs (Optional · Up to 5 Photos)
           </h2>
-          <ImageUpload
-            value={imageUrl}
-            onChange={setImageUrl}
-            label="Upload an old photo or reference image"
-            helperText="Clear reference photos help potential finders recognize your belonging."
+          <MultiImageUpload
+            images={images}
+            onChange={setImages}
+            requiredFirst={false}
+            label="Reference Photographs"
+            helperText="Clear reference photos (front, back, details) help potential finders recognize your lost item."
           />
         </div>
 

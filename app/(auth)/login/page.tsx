@@ -47,7 +47,7 @@ function LoginForm() {
           document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
           try {
             localStorage.setItem('foundloop_session', userStr);
-          } catch {}
+          } catch { }
         }
         const userIsAdmin =
           email.toLowerCase().includes('admin') ||
@@ -57,8 +57,8 @@ function LoginForm() {
           redirectTo && redirectTo !== '/dashboard'
             ? redirectTo
             : userIsAdmin
-            ? '/admin'
-            : '/dashboard';
+              ? '/admin'
+              : '/dashboard';
 
         window.location.href = destination;
       }

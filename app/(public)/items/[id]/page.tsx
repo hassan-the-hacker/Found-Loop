@@ -17,6 +17,7 @@ import {
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, getStatusBadge } from '@/lib/utils';
 import { LostItem, FoundItem } from '@/types/app';
+import ItemImageGallery from '@/components/items/ItemImageGallery';
 
 interface PageProps {
   params: { id: string };
@@ -90,6 +91,16 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
   const badge = getStatusBadge(item.status);
   const dateStr = isLost ? (item as LostItem).lost_date : (item as FoundItem).found_date;
 
+  const allImages: string[] = [];
+  if (item.image_url) allImages.push(item.image_url);
+  if (Array.isArray(item.additional_images)) {
+    item.additional_images.forEach((img) => {
+      if (img && typeof img === 'string' && !allImages.includes(img)) {
+        allImages.push(img);
+      }
+    });
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
       {/* Back Button */}
@@ -104,26 +115,9 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        {/* Left Column: Photograph Preview */}
+        {/* Left Column: Photograph Gallery */}
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-lg border border-border-subtle bg-surface-subtle aspect-square flex items-center justify-center">
-            {item.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={item.image_url}
-                alt={item.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-text-muted p-8 text-center">
-                <Box className="h-16 w-16 stroke-[1.2]" />
-                <span className="mt-2 text-xs font-medium">No Photograph Provided</span>
-                <span className="text-[11px] text-text-muted mt-1">
-                  Public identification relies on description and approximate landmark.
-                </span>
-              </div>
-            )}
-          </div>
+          <ItemImageGallery title={item.title} images={allImages} />
 
           {/* Privacy Notice */}
           <div className="rounded-lg border border-border-subtle bg-surface p-4 text-xs space-y-2">

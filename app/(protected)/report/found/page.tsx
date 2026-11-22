@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_STATES, getCitiesForState, ITEM_COLORS, CUSTODY_TYPES } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
+import MultiImageUpload from '@/components/forms/MultiImageUpload';
 import Select from '@/components/ui/Select';
 import DatePicker from '@/components/ui/DatePicker';
 import { ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
@@ -38,7 +39,7 @@ export default function ReportFoundPage() {
   const [approximateLocation, setApproximateLocation] = useState('');
   const [custodyType, setCustodyType] = useState<string>(CUSTODY_TYPES[0].value);
   const [custodyDetails, setCustodyDetails] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [additionalNotes, setAdditionalNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,12 +48,20 @@ export default function ReportFoundPage() {
     setLoading(true);
 
     try {
+      if (!images[0] || images[0].trim() === '') {
+        setError('Photo 1 (Primary photo) is mandatory. Please upload at least the main photo of the found item.');
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
         setError('You must be signed in to submit a found item report.');
         return;
       }
+
+      const validImages = images.filter((img) => img && img.trim() !== '');
 
       const { data, error: insertError } = await (supabase
         .from('found_items') as any)
@@ -70,7 +79,8 @@ export default function ReportFoundPage() {
           approximate_location: approximateLocation.trim(),
           custody_type: custodyType as any,
           custody_details: custodyDetails.trim() || null,
-          image_url: imageUrl,
+          image_url: validImages[0] || null,
+          additional_images: validImages,
           status: 'AVAILABLE',
         })
         .select()
@@ -353,13 +363,14 @@ export default function ReportFoundPage() {
         {/* Section 4: Photograph */}
         <div className="rounded-lg border border-border-subtle bg-surface p-6 shadow-sm space-y-4">
           <h2 className="text-base font-semibold text-text-primary border-b border-border-subtle pb-3">
-            4. Photograph of Found Item
+            4. Photographs of Found Item (Up to 5 Photos)
           </h2>
-          <ImageUpload
-            value={imageUrl}
-            onChange={setImageUrl}
-            label="Upload photo of the found item"
-            helperText="Showing a photo helps the legitimate owner identify it immediately."
+          <MultiImageUpload
+            images={images}
+            onChange={setImages}
+            requiredFirst={true}
+            label="Item Photographs"
+            helperText="Photo 1 is mandatory for identification. Photos 2–5 are optional for other angles (back, side, details, box)."
           />
         </div>
 
