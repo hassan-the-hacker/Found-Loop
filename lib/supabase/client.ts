@@ -149,45 +149,61 @@ function createLocalClient(): any {
   return {
     auth: {
       async signUp({ email, password, options }: any) {
-        const res = await fetch('/api/local-db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'signup',
-            email,
-            password,
-            full_name: options?.data?.full_name,
-          }),
-        });
-        const json = await res.json();
-        return json;
+        try {
+          const res = await fetch('/api/local-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'signup',
+              email,
+              password,
+              full_name: options?.data?.full_name,
+            }),
+          });
+          const json = await res.json();
+          return json;
+        } catch (err: any) {
+          return {
+            data: { user: null, session: null },
+            error: { message: err?.message || 'Registration request failed' },
+          };
+        }
       },
       async signInWithPassword({ email, password }: any) {
-        const res = await fetch('/api/local-db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'signin',
-            email,
-            password,
-          }),
-        });
-        const json = await res.json();
-        return json;
+        try {
+          const res = await fetch('/api/local-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'signin',
+              email,
+              password,
+            }),
+          });
+          const json = await res.json();
+          return json;
+        } catch (err: any) {
+          return {
+            data: { user: null, session: null },
+            error: { message: err?.message || 'Sign in request failed' },
+          };
+        }
       },
       async getUser() {
         const user = parseCookieUser();
         return { data: { user }, error: null };
       },
       async signOut() {
-        await fetch('/api/local-db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'signout' }),
-        });
         if (typeof document !== 'undefined') {
-          document.cookie = 'foundloop_session=; path=/; max-age=0;';
+          document.cookie = 'foundloop_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
+        try {
+          await fetch('/api/local-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'signout' }),
+          }).catch(() => {});
+        } catch {}
         return { error: null };
       },
       onAuthStateChange(callback: (event: string, session: any) => void) {

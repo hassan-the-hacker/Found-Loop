@@ -257,8 +257,8 @@ export default function DatePicker({
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         className={`flex w-full items-center justify-between rounded-md border bg-surface px-3 py-2 text-sm text-left transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 ${isOpen
-            ? 'border-accent ring-2 ring-accent/20 shadow-sm'
-            : 'border-[#D1D5DB] hover:border-text-secondary/60'
+          ? 'border-accent ring-2 ring-accent/20 shadow-sm'
+          : 'border-[#D1D5DB] hover:border-text-secondary/60'
           }`}
       >
         <span className="flex items-center gap-2.5 truncate">
@@ -408,10 +408,10 @@ export default function DatePicker({
                   type="button"
                   onClick={() => selectDay(cell.day)}
                   className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-all relative ${isSelected
-                      ? 'bg-accent text-white font-bold shadow-sm'
-                      : isToday
-                        ? 'font-bold text-accent border border-accent/40 bg-accent/5 hover:bg-accent/15'
-                        : 'text-text-primary font-medium hover:bg-[#F3F4F6] hover:text-text-primary'
+                    ? 'bg-accent text-white font-bold shadow-sm'
+                    : isToday
+                      ? 'font-bold text-accent border border-accent/40 bg-accent/5 hover:bg-accent/15'
+                      : 'text-text-primary font-medium hover:bg-[#F3F4F6] hover:text-text-primary'
                     }`}
                 >
                   {cell.day}
