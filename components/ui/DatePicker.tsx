@@ -84,7 +84,13 @@ export default function DatePicker({
   placeholder = 'Select date',
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMonthOpen, setIsMonthOpen] = useState(false);
+  const [isYearOpen, setIsYearOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const monthDropdownRef = useRef<HTMLDivElement>(null);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+  const selectedMonthRef = useRef<HTMLButtonElement | null>(null);
+  const selectedYearRef = useRef<HTMLButtonElement | null>(null);
 
   const initialParsed = parseYMD(value) || {
     year: new Date().getFullYear(),
@@ -114,11 +120,44 @@ export default function DatePicker({
     }
   }, [value]);
 
+  // Scroll selected items into view when dropdowns open
+  useEffect(() => {
+    if (isMonthOpen && selectedMonthRef.current) {
+      selectedMonthRef.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [isMonthOpen]);
+
+  useEffect(() => {
+    if (isYearOpen && selectedYearRef.current) {
+      selectedYearRef.current.scrollIntoView({ block: 'center' });
+    }
+  }, [isYearOpen]);
+
+  // Close month/year dropdowns when clicked outside
+  useEffect(() => {
+    function handleDropdownOutside(event: MouseEvent) {
+      if (monthDropdownRef.current && !monthDropdownRef.current.contains(event.target as Node)) {
+        setIsMonthOpen(false);
+      }
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+        setIsYearOpen(false);
+      }
+    }
+    if (isMonthOpen || isYearOpen) {
+      document.addEventListener('mousedown', handleDropdownOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleDropdownOutside);
+    };
+  }, [isMonthOpen, isYearOpen]);
+
   // Close on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setIsMonthOpen(false);
+        setIsYearOpen(false);
       }
     }
     if (isOpen) {
@@ -134,6 +173,8 @@ export default function DatePicker({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsOpen(false);
+        setIsMonthOpen(false);
+        setIsYearOpen(false);
       }
     }
     if (isOpen) {
@@ -311,38 +352,108 @@ export default function DatePicker({
             </button>
 
             <div className="flex items-center gap-1.5 flex-1 justify-center">
-              {/* Month Selector */}
-              <div className="relative">
-                <select
-                  value={viewMonth}
-                  onChange={(e) => setViewMonth(Number(e.target.value))}
-                  className="appearance-none rounded-md border border-border-subtle bg-surface-subtle/70 py-1 pl-2 pr-5 text-xs font-semibold text-text-primary hover:border-accent hover:bg-surface focus:border-accent focus:bg-surface focus:outline-none cursor-pointer transition-all"
+              {/* Modern Month Selector */}
+              <div className="relative" ref={monthDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMonthOpen(!isMonthOpen);
+                    setIsYearOpen(false);
+                  }}
+                  className={`flex items-center gap-1 rounded-md border py-1 pl-2.5 pr-2 text-xs font-semibold transition-all ${
+                    isMonthOpen
+                      ? 'border-accent bg-accent/10 text-accent ring-2 ring-accent/20'
+                      : 'border-border-subtle bg-surface-subtle/70 text-text-primary hover:border-accent hover:bg-surface'
+                  }`}
                   aria-label="Select month"
                 >
-                  {MONTH_NAMES.map((m, idx) => (
-                    <option key={m} value={idx}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
+                  <span>{MONTH_NAMES[viewMonth]}</span>
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isMonthOpen ? 'rotate-180 text-accent' : 'text-text-muted'}`} />
+                </button>
+
+                {isMonthOpen && (
+                  <div className="absolute left-0 top-full mt-1.5 z-30 w-44 max-h-56 overflow-y-auto rounded-lg border border-border-subtle bg-surface p-1 shadow-xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95">
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted border-b border-border-subtle mb-1">
+                      Select Month
+                    </div>
+                    <div className="space-y-0.5">
+                      {MONTH_NAMES.map((m, idx) => {
+                        const isSelected = idx === viewMonth;
+                        return (
+                          <button
+                            key={m}
+                            ref={isSelected ? selectedMonthRef : null}
+                            type="button"
+                            onClick={() => {
+                              setViewMonth(idx);
+                              setIsMonthOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors ${
+                              isSelected
+                                ? 'bg-accent text-white font-semibold shadow-xs'
+                                : 'text-text-primary hover:bg-[#F3F4F6] hover:text-accent font-medium'
+                            }`}
+                          >
+                            <span>{m}</span>
+                            {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Year Selector */}
-              <div className="relative">
-                <select
-                  value={viewYear}
-                  onChange={(e) => setViewYear(Number(e.target.value))}
-                  className="appearance-none rounded-md border border-border-subtle bg-surface-subtle/70 py-1 pl-2 pr-5 text-xs font-semibold text-text-primary hover:border-accent hover:bg-surface focus:border-accent focus:bg-surface focus:outline-none cursor-pointer transition-all"
+              {/* Modern Year Selector */}
+              <div className="relative" ref={yearDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsYearOpen(!isYearOpen);
+                    setIsMonthOpen(false);
+                  }}
+                  className={`flex items-center gap-1 rounded-md border py-1 pl-2.5 pr-2 text-xs font-semibold transition-all ${
+                    isYearOpen
+                      ? 'border-accent bg-accent/10 text-accent ring-2 ring-accent/20'
+                      : 'border-border-subtle bg-surface-subtle/70 text-text-primary hover:border-accent hover:bg-surface'
+                  }`}
                   aria-label="Select year"
                 >
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
+                  <span>{viewYear}</span>
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isYearOpen ? 'rotate-180 text-accent' : 'text-text-muted'}`} />
+                </button>
+
+                {isYearOpen && (
+                  <div className="absolute right-0 top-full mt-1.5 z-30 w-32 max-h-56 overflow-y-auto rounded-lg border border-border-subtle bg-surface p-1 shadow-xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95">
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted border-b border-border-subtle mb-1">
+                      Select Year
+                    </div>
+                    <div className="space-y-0.5">
+                      {yearOptions.map((y) => {
+                        const isSelected = y === viewYear;
+                        return (
+                          <button
+                            key={y}
+                            ref={isSelected ? selectedYearRef : null}
+                            type="button"
+                            onClick={() => {
+                              setViewYear(y);
+                              setIsYearOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors ${
+                              isSelected
+                                ? 'bg-accent text-white font-semibold shadow-xs'
+                                : 'text-text-primary hover:bg-[#F3F4F6] hover:text-accent font-medium'
+                            }`}
+                          >
+                            <span>{y}</span>
+                            {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
