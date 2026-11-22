@@ -1,13 +1,6 @@
 {
   "profiles": [
     {
-      "id": "usr_1795340880201_ko12h",
-      "created_at": "2026-11-22T09:48:00.203Z",
-      "email": "los-fou@yopmail.com",
-      "full_name": "hazyyy",
-      "role": "user"
-    },
-    {
       "id": "usr_demo_admin",
       "email": "admin@foundloop.in",
       "full_name": "FoundLoop Admin",
@@ -178,14 +171,24 @@
   "reports_and_flags": [],
   "registered_users": [
     {
-      "id": "usr_1795340880201_ko12h",
-      "email": "los-fou@yopmail.com",
-      "password": "password123",
+      "id": "usr_demo_admin",
+      "email": "admin@foundloop.in",
+      "password": "Admin@123",
       "user_metadata": {
-        "full_name": "hazyyy"
+        "full_name": "FoundLoop Admin"
       },
-      "role": "authenticated",
-      "created_at": "2026-11-22T09:48:00.201Z"
+      "role": "admin",
+      "created_at": "2026-11-01T10:00:00Z"
+    },
+    {
+      "id": "usr_demo_mod",
+      "email": "moderator@foundloop.in",
+      "password": "Mod@123",
+      "user_metadata": {
+        "full_name": "Campus Moderator"
+      },
+      "role": "moderator",
+      "created_at": "2026-11-01T10:00:00Z"
     }
   ]
 }

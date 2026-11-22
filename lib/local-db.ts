@@ -99,3 +99,4 @@ export function upsertRow(table: string, row: Record<string, any>, conflictKeys:
     return insertRow(table, row);
   }
 }
+

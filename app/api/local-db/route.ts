@@ -11,55 +11,41 @@ export async function POST(request: NextRequest) {
       const db = getLocalDb();
       if (!db.registered_users) db.registered_users = [];
 
-      let user = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (!user) {
-        user = {
-          id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          email,
-          password,
-          user_metadata: { full_name: full_name || email.split('@')[0] },
-          role: email.toLowerCase().includes('admin') ? 'admin' : 'authenticated',
-          created_at: new Date().toISOString(),
-        };
-        db.registered_users.push(user);
-        saveLocalDb(db);
-
-        // Also create profile
-        upsertRow(
-          'profiles',
+      const existingUser = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      if (existingUser) {
+        return NextResponse.json(
           {
-            id: user.id,
-            email: user.email,
-            full_name: full_name || email.split('@')[0],
-            role: user.role === 'admin' ? 'admin' : 'user',
-            created_at: new Date().toISOString(),
+            data: { user: null, session: null },
+            error: { message: 'An account with this email address already exists. Please sign in instead.' },
           },
-          ['id']
+          { status: 400 }
         );
       }
 
-      const response = NextResponse.json({
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            user_metadata: user.user_metadata,
-            role: user.role,
-          },
-          session: {
-            access_token: 'local-demo-token',
-            user: {
-              id: user.id,
-              email: user.email,
-              user_metadata: user.user_metadata,
-              role: user.role,
-            },
-          },
-        },
-        error: null,
-      });
+      const user = {
+        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        email,
+        password,
+        user_metadata: { full_name: full_name || email.split('@')[0] },
+        role: email.toLowerCase().includes('admin') ? 'admin' : 'authenticated',
+        created_at: new Date().toISOString(),
+      };
+      db.registered_users.push(user);
+      saveLocalDb(db);
 
-      // Set cookie for Next.js middleware and SSR
+      // Also create profile
+      upsertRow(
+        'profiles',
+        {
+          id: user.id,
+          email: user.email,
+          full_name: full_name || email.split('@')[0],
+          role: user.role === 'admin' ? 'admin' : 'user',
+          created_at: new Date().toISOString(),
+        },
+        ['id']
+      );
+
       const sessionUser = {
         id: user.id,
         email: user.email,
@@ -67,6 +53,18 @@ export async function POST(request: NextRequest) {
         role: user.role,
       };
 
+      const response = NextResponse.json({
+        data: {
+          user: sessionUser,
+          session: {
+            access_token: 'local-demo-token',
+            user: sessionUser,
+          },
+        },
+        error: null,
+      });
+
+      // Set cookie for Next.js middleware and SSR
       response.cookies.set('foundloop_session', JSON.stringify(sessionUser), {
         path: '/',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -81,54 +79,29 @@ export async function POST(request: NextRequest) {
       const db = getLocalDb();
       if (!db.registered_users) db.registered_users = [];
 
-      let user = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const user = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
 
-      // If user doesn't exist yet, auto-provision in local demo mode so login never fails
+      // STRICT: Must be signed up first
       if (!user) {
-        user = {
-          id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          email,
-          password: password || '123456',
-          user_metadata: { full_name: email.split('@')[0] },
-          role: email.toLowerCase().includes('admin') ? 'admin' : 'authenticated',
-          created_at: new Date().toISOString(),
-        };
-        db.registered_users.push(user);
-        saveLocalDb(db);
-
-        upsertRow(
-          'profiles',
+        return NextResponse.json(
           {
-            id: user.id,
-            email: user.email,
-            full_name: email.split('@')[0],
-            role: user.role === 'admin' ? 'admin' : 'user',
-            created_at: new Date().toISOString(),
+            data: { user: null, session: null },
+            error: { message: 'No account found with this email. Please sign up first.' },
           },
-          ['id']
+          { status: 400 }
         );
       }
 
-      const response = NextResponse.json({
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            user_metadata: user.user_metadata,
-            role: user.role,
+      // STRICT: Password must match
+      if (user.password !== password) {
+        return NextResponse.json(
+          {
+            data: { user: null, session: null },
+            error: { message: 'Incorrect password. Please enter the correct password.' },
           },
-          session: {
-            access_token: 'local-demo-token',
-            user: {
-              id: user.id,
-              email: user.email,
-              user_metadata: user.user_metadata,
-              role: user.role,
-            },
-          },
-        },
-        error: null,
-      });
+          { status: 400 }
+        );
+      }
 
       const sessionUser = {
         id: user.id,
@@ -136,6 +109,17 @@ export async function POST(request: NextRequest) {
         user_metadata: user.user_metadata,
         role: user.role,
       };
+
+      const response = NextResponse.json({
+        data: {
+          user: sessionUser,
+          session: {
+            access_token: 'local-demo-token',
+            user: sessionUser,
+          },
+        },
+        error: null,
+      });
 
       response.cookies.set('foundloop_session', JSON.stringify(sessionUser), {
         path: '/',
@@ -204,3 +188,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
