@@ -35,11 +35,10 @@ export default function ItemCard({ item, type }: ItemCardProps) {
           {/* Badge */}
           <div className="absolute left-3 top-3 flex items-center gap-1.5">
             <span
-              className={`rounded px-2 py-0.5 text-[11px] font-bold tracking-wider shadow-sm ${
-                isLost
+              className={`rounded px-2 py-0.5 text-[11px] font-bold tracking-wider shadow-sm ${isLost
                   ? 'bg-status-lost text-white'
                   : 'bg-status-found text-white'
-              }`}
+                }`}
             >
               {isLost ? 'LOST' : 'FOUND'}
             </span>

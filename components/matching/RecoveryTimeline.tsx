@@ -32,6 +32,7 @@ export default function RecoveryTimeline({ currentStatus }: RecoveryTimelineProp
       case 'MATCH_PENDING':
         return 1;
       case 'CLAIM_SUBMITTED':
+      case 'SUBMITTED':
         return 2;
       case 'UNDER_REVIEW':
       case 'CLAIM_UNDER_REVIEW':

@@ -7,6 +7,7 @@ import { Search, PlusCircle, User, LogOut, Menu, X, ShieldAlert } from 'lucide-r
 import { createClient } from '@/lib/supabase/client';
 import { Profile } from '@/types/app';
 import { useAuthModal } from '@/components/auth/AuthModalContext';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -124,6 +125,7 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-2 border-l border-border-subtle pl-3">
+              <NotificationBell userId={user.id} />
               <Link
                 href="/dashboard"
                 className="flex items-center gap-1.5 rounded-md bg-surface-subtle px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-border-subtle"

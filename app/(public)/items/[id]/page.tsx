@@ -12,11 +12,12 @@ import {
   Box,
   CheckCircle,
   Building,
-  UserCheck
+  UserCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, getStatusBadge } from '@/lib/utils';
-import { LostItem, FoundItem } from '@/types/app';
+import { LostItem, FoundItem, OwnershipClaim } from '@/types/app';
 import ItemImageGallery from '@/components/items/ItemImageGallery';
 
 interface PageProps {
@@ -91,6 +92,21 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
   const badge = getStatusBadge(item.status);
   const dateStr = isLost ? (item as LostItem).lost_date : (item as FoundItem).found_date;
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwnerFinder = !isLost && !!user && (item as FoundItem).user_id === user.id;
+
+  let activeItemClaim: OwnershipClaim | null = null;
+  if (!isLost && item) {
+    const { data: claimData } = await supabase
+      .from('ownership_claims')
+      .select('*')
+      .eq('found_item_id', item.id)
+      .order('created_at', { ascending: false });
+    if (Array.isArray(claimData) && claimData.length > 0) {
+      activeItemClaim = claimData[0] as unknown as OwnershipClaim;
+    }
+  }
+
   const allImages: string[] = [];
   if (item.image_url) allImages.push(item.image_url);
   if (Array.isArray(item.additional_images)) {
@@ -113,6 +129,36 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
           Back to Listings
         </Link>
       </div>
+
+      {/* Owner Finder Alert: If claim has been filed on this found item */}
+      {isOwnerFinder && activeItemClaim && (
+        <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-5 shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-200 text-amber-900 shrink-0">
+                <ShieldAlert className="h-5 w-5" />
+              </div>
+              <div>
+                <span className="rounded bg-amber-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-950">
+                  Claim Received
+                </span>
+                <h3 className="text-sm font-bold text-amber-950 mt-1">
+                  Someone Submitted An Ownership Claim For This Belonging!
+                </h3>
+                <p className="text-xs text-amber-800 leading-relaxed mt-0.5">
+                  A community member provided proof answers to claim this item. Please review their answers against the item in your custody.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/claims/${activeItemClaim.id}`}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-accent-hover shrink-0 self-start sm:self-center"
+            >
+              Review Claimant&apos;s Proof →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Left Column: Photograph Gallery */}
@@ -227,14 +273,30 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
           {/* Primary Action Buttons */}
           <div className="space-y-3 pt-2">
             {!isLost ? (
-              <AuthProtectedLink
-                href={`/items/${item.id}/claim`}
-                actionType="general"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-hover"
-              >
-                <UserCheck className="h-4 w-4" />
-                Claim This Item (Prove Ownership)
-              </AuthProtectedLink>
+              isOwnerFinder ? (
+                activeItemClaim ? (
+                  <Link
+                    href={`/claims/${activeItemClaim.id}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-hover"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Review Ownership Claim & Proof →
+                  </Link>
+                ) : (
+                  <div className="rounded-md border border-border-subtle bg-surface-subtle p-3 text-center text-xs text-text-secondary">
+                    You reported this found item. When someone claims it, their verification proof will appear here.
+                  </div>
+                )
+              ) : (
+                <AuthProtectedLink
+                  href={`/items/${item.id}/claim`}
+                  actionType="general"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-hover"
+                >
+                  <UserCheck className="h-4 w-4" />
+                  Claim This Item (Prove Ownership)
+                </AuthProtectedLink>
+              )
             ) : (
               <AuthProtectedLink
                 href="/report/found"
