@@ -72,9 +72,8 @@ export default function RecoveryTimeline({ currentStatus }: RecoveryTimelineProp
               {/* Connecting line */}
               {idx < STEPS.length - 1 && (
                 <div
-                  className={`absolute left-[13px] top-7 -bottom-6 w-0.5 ${
-                    isCompleted ? 'bg-status-verified' : 'bg-border-subtle'
-                  }`}
+                  className={`absolute left-[13px] top-7 -bottom-6 w-0.5 ${isCompleted ? 'bg-status-verified' : 'bg-border-subtle'
+                    }`}
                 />
               )}
 
@@ -94,13 +93,12 @@ export default function RecoveryTimeline({ currentStatus }: RecoveryTimelineProp
               {/* Content */}
               <div>
                 <h4
-                  className={`text-xs font-semibold ${
-                    isCurrent
+                  className={`text-xs font-semibold ${isCurrent
                       ? 'text-accent font-bold'
                       : isCompleted
-                      ? 'text-text-primary'
-                      : 'text-text-muted'
-                  }`}
+                        ? 'text-text-primary'
+                        : 'text-text-muted'
+                    }`}
                 >
                   {step.label}
                   {isCurrent && (
