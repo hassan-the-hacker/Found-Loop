@@ -49,8 +49,19 @@ export const INDIAN_STATES_AND_CITIES: Record<string, string[]> = {
     'Tirunelveli', 'Erode', 'Vellore', 'Thoothukudi', 'Dindigul', 'Other City'
   ],
   'Uttar Pradesh': [
-    'Lucknow', 'Kanpur', 'Noida', 'Greater Noida', 'Ghaziabad', 'Varanasi',
-    'Agra', 'Prayagraj (Allahabad)', 'Meerut', 'Aligarh', 'Bareilly', 'Gorakhpur', 'Other City'
+    'Lucknow', 'Kanpur', 'Noida (Gautam Buddha Nagar)', 'Greater Noida', 'Ghaziabad',
+    'Varanasi (Kashi / Banaras)', 'Prayagraj (Allahabad)', 'Agra', 'Meerut', 'Bareilly',
+    'Aligarh', 'Gorakhpur', 'Ayodhya (Faizabad)', 'Jhansi', 'Mathura', 'Moradabad',
+    'Saharanpur', 'Firozabad', 'Muzaffarnagar', 'Shahjahanpur', 'Rampur', 'Farrukhabad',
+    'Hapur', 'Etawah', 'Mirzapur', 'Bulandshahr', 'Sambhal', 'Amroha', 'Hardoi',
+    'Fatehpur', 'Raebareli', 'Orai (Jalaun)', 'Sitapur', 'Bahraich', 'Modinagar',
+    'Unnao', 'Jaunpur', 'Lakhimpur Kheri', 'Hathras', 'Banda', 'Pilibhit', 'Barabanki',
+    'Mughalsarai (Pt Deen Dayal Upadhyaya Nagar)', 'Gonda', 'Basti', 'Ballia', 'Deoria',
+    'Ghazipur', 'Sultanpur', 'Azamgarh', 'Bijnor', 'Budaun', 'Chandauli', 'Mainpuri',
+    'Shamli', 'Kasganj', 'Lalitpur', 'Etah', 'Bhadohi', 'Kushinagar', 'Ambedkar Nagar',
+    'Kaushambi', 'Chitrakoot', 'Mahoba', 'Hamirpur', 'Siddharthnagar', 'Sonbhadra',
+    'Sant Kabir Nagar', 'Mau', 'Balrampur', 'Shravasti', 'Maharajganj', 'Auraiya',
+    'Baghpat', 'Kannauj', 'Vrindavan', 'Other City / Town'
   ],
   'Telangana': [
     'Hyderabad', 'Warangal', 'Nizamabad', 'Karimnagar', 'Khammam', 'Ramagundam', 'Secunderabad', 'Other City'
