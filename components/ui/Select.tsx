@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { 
-  ChevronDown, 
-  Check, 
-  Laptop, 
-  FileText, 
-  Wallet, 
-  Briefcase, 
-  Watch, 
-  Key, 
-  Shirt, 
-  HelpCircle, 
-  MapPin, 
+import {
+  ChevronDown,
+  Check,
+  Laptop,
+  FileText,
+  Wallet,
+  Briefcase,
+  Watch,
+  Key,
+  Shirt,
+  HelpCircle,
+  MapPin,
   Building,
   Search,
   X
@@ -192,11 +192,10 @@ export default function Select({
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`flex w-full items-center justify-between rounded-md border bg-surface px-3 py-2 text-sm text-left transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 ${
-          isOpen
+        className={`flex w-full items-center justify-between rounded-md border bg-surface px-3 py-2 text-sm text-left transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 ${isOpen
             ? 'border-accent ring-2 ring-accent/20 shadow-sm'
             : 'border-[#D1D5DB] hover:border-text-secondary/60'
-        }`}
+          }`}
       >
         <span className="flex items-center gap-2.5 truncate">
           {selectedOption?.icon}
@@ -213,9 +212,8 @@ export default function Select({
           </span>
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-text-muted transition-transform duration-200 shrink-0 ml-2 ${
-            isOpen ? 'rotate-180 text-accent' : ''
-          }`}
+          className={`h-4 w-4 text-text-muted transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-accent' : ''
+            }`}
         />
       </button>
 
@@ -267,11 +265,10 @@ export default function Select({
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => handleSelect(opt.value)}
-                    className={`flex items-center justify-between rounded-md px-3 py-2 text-sm cursor-pointer transition-colors ${
-                      isSelected
+                    className={`flex items-center justify-between rounded-md px-3 py-2 text-sm cursor-pointer transition-colors ${isSelected
                         ? 'bg-accent/10 font-semibold text-accent'
                         : 'text-text-primary hover:bg-[#F3F4F6] hover:text-text-primary'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2.5 truncate">
                       {opt.icon}

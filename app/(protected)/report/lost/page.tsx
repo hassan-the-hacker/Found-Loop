@@ -83,7 +83,7 @@ export default function ReportLostPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ itemId: data.id, itemType: 'LOST' }),
-        }).catch(() => {});
+        }).catch(() => { });
       }
 
       setSuccess(true);

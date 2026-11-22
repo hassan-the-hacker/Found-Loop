@@ -154,31 +154,28 @@ function BrowseCatalog() {
             <div className="flex rounded-md border border-border-subtle bg-surface-subtle p-0.5 text-xs font-semibold">
               <button
                 onClick={() => setTypeFilter('ALL')}
-                className={`rounded px-3 py-1.5 transition-colors ${
-                  typeFilter === 'ALL'
+                className={`rounded px-3 py-1.5 transition-colors ${typeFilter === 'ALL'
                     ? 'bg-surface text-text-primary shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
-                }`}
+                  }`}
               >
                 All Items
               </button>
               <button
                 onClick={() => setTypeFilter('LOST')}
-                className={`rounded px-3 py-1.5 transition-colors ${
-                  typeFilter === 'LOST'
+                className={`rounded px-3 py-1.5 transition-colors ${typeFilter === 'LOST'
                     ? 'bg-status-lost text-white shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
-                }`}
+                  }`}
               >
                 Lost Only
               </button>
               <button
                 onClick={() => setTypeFilter('FOUND')}
-                className={`rounded px-3 py-1.5 transition-colors ${
-                  typeFilter === 'FOUND'
+                className={`rounded px-3 py-1.5 transition-colors ${typeFilter === 'FOUND'
                     ? 'bg-status-found text-white shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
-                }`}
+                  }`}
               >
                 Found Only
               </button>

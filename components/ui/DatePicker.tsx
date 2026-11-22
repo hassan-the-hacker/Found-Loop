@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { 
-  Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight, 
-  Check, 
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Check,
   RotateCcw,
   Sparkles
 } from 'lucide-react';
@@ -42,8 +43,8 @@ function formatDisplayDate(ymd: string): string {
   if (!parsed) return 'Select date';
   const d = new Date(parsed.year, parsed.month, parsed.day);
   const now = new Date();
-  
-  const isToday = 
+
+  const isToday =
     d.getFullYear() === now.getFullYear() &&
     d.getMonth() === now.getMonth() &&
     d.getDate() === now.getDate();
@@ -61,7 +62,7 @@ function formatDisplayDate(ymd: string): string {
   // Check yesterday
   const yesterday = new Date();
   yesterday.setDate(now.getDate() - 1);
-  const isYesterday = 
+  const isYesterday =
     d.getFullYear() === yesterday.getFullYear() &&
     d.getMonth() === yesterday.getMonth() &&
     d.getDate() === yesterday.getDate();
@@ -94,6 +95,16 @@ export default function DatePicker({
 
   const [viewYear, setViewYear] = useState<number>(initialParsed.year);
   const [viewMonth, setViewMonth] = useState<number>(initialParsed.month);
+
+  const yearOptions = useMemo(() => {
+    const current = new Date().getFullYear();
+    const list: number[] = [];
+    const minYear = Math.min(current - 25, viewYear);
+    for (let y = current; y >= minYear; y--) {
+      list.push(y);
+    }
+    return list;
+  }, [viewYear]);
 
   // Sync view when value changes from outside
   useEffect(() => {
@@ -245,11 +256,10 @@ export default function DatePicker({
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className={`flex w-full items-center justify-between rounded-md border bg-surface px-3 py-2 text-sm text-left transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 ${
-          isOpen
+        className={`flex w-full items-center justify-between rounded-md border bg-surface px-3 py-2 text-sm text-left transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 ${isOpen
             ? 'border-accent ring-2 ring-accent/20 shadow-sm'
             : 'border-[#D1D5DB] hover:border-text-secondary/60'
-        }`}
+          }`}
       >
         <span className="flex items-center gap-2.5 truncate">
           <CalendarIcon className={`h-4 w-4 shrink-0 transition-colors ${isOpen ? 'text-accent' : 'text-text-muted'}`} />
@@ -291,22 +301,56 @@ export default function DatePicker({
           </div>
 
           {/* Month / Year Navigation */}
-          <div className="flex items-center justify-between px-1">
+          <div className="flex items-center justify-between gap-1.5 px-0.5">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-muted hover:bg-[#F3F4F6] hover:text-text-primary transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-muted hover:bg-[#F3F4F6] hover:text-text-primary transition-colors shrink-0"
               aria-label="Previous month"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <div className="text-xs font-bold text-text-primary">
-              {MONTH_NAMES[viewMonth]} {viewYear}
+
+            <div className="flex items-center gap-1.5 flex-1 justify-center">
+              {/* Month Selector */}
+              <div className="relative">
+                <select
+                  value={viewMonth}
+                  onChange={(e) => setViewMonth(Number(e.target.value))}
+                  className="appearance-none rounded-md border border-border-subtle bg-surface-subtle/70 py-1 pl-2 pr-5 text-xs font-semibold text-text-primary hover:border-accent hover:bg-surface focus:border-accent focus:bg-surface focus:outline-none cursor-pointer transition-all"
+                  aria-label="Select month"
+                >
+                  {MONTH_NAMES.map((m, idx) => (
+                    <option key={m} value={idx}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
+              </div>
+
+              {/* Year Selector */}
+              <div className="relative">
+                <select
+                  value={viewYear}
+                  onChange={(e) => setViewYear(Number(e.target.value))}
+                  className="appearance-none rounded-md border border-border-subtle bg-surface-subtle/70 py-1 pl-2 pr-5 text-xs font-semibold text-text-primary hover:border-accent hover:bg-surface focus:border-accent focus:bg-surface focus:outline-none cursor-pointer transition-all"
+                  aria-label="Select year"
+                >
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
+              </div>
             </div>
+
             <button
               type="button"
               onClick={handleNextMonth}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-muted hover:bg-[#F3F4F6] hover:text-text-primary transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-muted hover:bg-[#F3F4F6] hover:text-text-primary transition-colors shrink-0"
               aria-label="Next month"
             >
               <ChevronRight className="h-4 w-4" />
@@ -363,13 +407,12 @@ export default function DatePicker({
                   key={idx}
                   type="button"
                   onClick={() => selectDay(cell.day)}
-                  className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-all relative ${
-                    isSelected
+                  className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-all relative ${isSelected
                       ? 'bg-accent text-white font-bold shadow-sm'
                       : isToday
-                      ? 'font-bold text-accent border border-accent/40 bg-accent/5 hover:bg-accent/15'
-                      : 'text-text-primary font-medium hover:bg-[#F3F4F6] hover:text-text-primary'
-                  }`}
+                        ? 'font-bold text-accent border border-accent/40 bg-accent/5 hover:bg-accent/15'
+                        : 'text-text-primary font-medium hover:bg-[#F3F4F6] hover:text-text-primary'
+                    }`}
                 >
                   {cell.day}
                   {isToday && !isSelected && (
@@ -384,3 +427,4 @@ export default function DatePicker({
     </div>
   );
 }
+
