@@ -61,6 +61,19 @@ export default function ReportFoundPage() {
         return;
       }
 
+      // Ensure user profile exists in public.profiles to satisfy foreign key constraint
+      try {
+        await (supabase.from('profiles') as any).upsert(
+          {
+            id: user.id,
+            email: user.email || '',
+            full_name: (user.user_metadata as any)?.full_name || user.email?.split('@')[0] || 'Community Member',
+            role: user.email?.toLowerCase().includes('admin') ? 'admin' : 'user',
+          },
+          { onConflict: 'id' }
+        );
+      } catch { }
+
       const validImages = images.filter((img) => img && img.trim() !== '');
 
       const { data, error: insertError } = await (supabase

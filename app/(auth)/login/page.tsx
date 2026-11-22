@@ -54,6 +54,19 @@ function LoginForm() {
       }
 
       if (data?.user) {
+        // Ensure profile exists in public.profiles table
+        try {
+          await (supabase.from('profiles') as any).upsert(
+            {
+              id: data.user.id,
+              email: data.user.email || email,
+              full_name: (data.user.user_metadata as any)?.full_name || email.split('@')[0] || 'Community Member',
+              role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
+            },
+            { onConflict: 'id' }
+          );
+        } catch { }
+
         if (typeof document !== 'undefined') {
           const userStr = JSON.stringify(data.user);
           document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;

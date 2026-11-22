@@ -44,6 +44,19 @@ export default function ClaimItemPage({ params }: { params: { id: string } }) {
         return;
       }
 
+      // Ensure user profile exists in public.profiles to satisfy foreign key constraint
+      try {
+        await (supabase.from('profiles') as any).upsert(
+          {
+            id: user.id,
+            email: user.email || '',
+            full_name: (user.user_metadata as any)?.full_name || user.email?.split('@')[0] || 'Community Member',
+            role: user.email?.toLowerCase().includes('admin') ? 'admin' : 'user',
+          },
+          { onConflict: 'id' }
+        );
+      } catch { }
+
       // 1. Insert ownership claim
       const { data, error: claimError } = await (supabase
         .from('ownership_claims') as any)
