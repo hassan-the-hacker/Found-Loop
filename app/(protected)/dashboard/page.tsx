@@ -153,7 +153,12 @@ export default async function DashboardPage() {
                   <div key={item.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-semibold text-text-primary">{item.title}</h4>
+                        <Link
+                          href={`/items/${item.id}?type=LOST`}
+                          className="text-sm font-semibold text-text-primary hover:text-accent hover:underline transition-colors"
+                        >
+                          {item.title}
+                        </Link>
                         <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold ${b.bg} ${b.text} ${b.border}`}>
                           {b.label}
                         </span>
@@ -209,7 +214,12 @@ export default async function DashboardPage() {
                   <div key={item.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-semibold text-text-primary">{item.title}</h4>
+                        <Link
+                          href={`/items/${item.id}?type=FOUND`}
+                          className="text-sm font-semibold text-text-primary hover:text-accent hover:underline transition-colors"
+                        >
+                          {item.title}
+                        </Link>
                         <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold ${b.bg} ${b.text} ${b.border}`}>
                           {b.label}
                         </span>

@@ -99,11 +99,10 @@ export default function ItemImageGallery({ title, images = [] }: ItemImageGaller
                 key={idx}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className={`relative aspect-square overflow-hidden rounded-md border-2 transition-all ${
-                  isActive
+                className={`relative aspect-square overflow-hidden rounded-md border-2 transition-all ${isActive
                     ? 'border-accent ring-2 ring-accent/20 scale-102 shadow-xs'
                     : 'border-border-subtle opacity-75 hover:opacity-100 hover:border-text-secondary'
-                }`}
+                  }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -146,3 +145,4 @@ export default function ItemImageGallery({ title, images = [] }: ItemImageGaller
     </div>
   );
 }
+

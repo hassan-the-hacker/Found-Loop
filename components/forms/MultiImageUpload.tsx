@@ -201,9 +201,8 @@ export default function MultiImageUpload({
           <p className="text-xs text-text-secondary mt-0.5">{helperText}</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            isPrimaryReady || !requiredFirst ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-          }`}>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${isPrimaryReady || !requiredFirst ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+            }`}>
             {isPrimaryReady || !requiredFirst ? (
               <>
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
@@ -252,9 +251,8 @@ export default function MultiImageUpload({
               )}
             </span>
           </div>
-          <span className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-            requiredFirst ? 'bg-red-100 text-red-800' : 'bg-surface-subtle text-text-secondary border border-border-subtle'
-          }`}>
+          <span className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${requiredFirst ? 'bg-red-100 text-red-800' : 'bg-surface-subtle text-text-secondary border border-border-subtle'
+            }`}>
             {requiredFirst ? 'Required' : 'Optional'}
           </span>
         </div>
@@ -294,9 +292,8 @@ export default function MultiImageUpload({
         ) : (
           <div
             onClick={() => fileInputRefs.current[0]?.click()}
-            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-8 text-center transition-colors hover:border-accent hover:bg-accent/5 ${
-              requiredFirst ? 'border-red-300 bg-red-50/20' : 'border-border-subtle bg-surface'
-            }`}
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-8 text-center transition-colors hover:border-accent hover:bg-accent/5 ${requiredFirst ? 'border-red-300 bg-red-50/20' : 'border-border-subtle bg-surface'
+              }`}
           >
             {uploadingSlot === 0 ? (
               <Loader2 className="h-9 w-9 animate-spin text-accent" />

@@ -11,12 +11,13 @@ interface ItemCardProps {
 export default function ItemCard({ item, type }: ItemCardProps) {
   const isLost = type === 'LOST' || ('lost_date' in item);
   const dateStr = isLost ? (item as LostItem).lost_date : (item as FoundItem).found_date;
+  const itemUrl = `/items/${item.id}?type=${isLost ? 'LOST' : 'FOUND'}`;
 
   return (
     <div className="group flex flex-col justify-between overflow-hidden rounded-lg border border-border-subtle bg-surface transition-all hover:border-border-focus/40 hover:shadow-sm">
       <div>
         {/* Thumbnail Preview */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-subtle border-b border-border-subtle">
+        <Link href={itemUrl} className="block relative aspect-[16/10] w-full overflow-hidden bg-surface-subtle border-b border-border-subtle cursor-pointer">
           {item.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -53,12 +54,18 @@ export default function ItemCard({ item, type }: ItemCardProps) {
               {item.primary_color}
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Content */}
         <div className="p-4 space-y-2.5">
-          <h3 className="text-base font-semibold text-text-primary line-clamp-1 group-hover:text-accent">
-            {item.title}
+          <h3 className="text-base font-semibold text-text-primary line-clamp-1">
+            <Link
+              href={itemUrl}
+              className="hover:text-accent transition-colors hover:underline"
+              title={item.title}
+            >
+              {item.title}
+            </Link>
           </h3>
 
           <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
@@ -91,18 +98,18 @@ export default function ItemCard({ item, type }: ItemCardProps) {
       </div>
 
       {/* Action Footer */}
-      <div className="border-t border-border-subtle bg-surface-subtle/40 px-4 py-2.5 flex items-center justify-between">
-        <span className="text-[11px] text-text-muted flex items-center gap-1">
-          <ShieldCheck className="h-3.5 w-3.5 text-status-verified" />
-          {isLost ? 'Verification Required' : 'Available for Claim'}
+      <div className="border-t border-border-subtle bg-surface-subtle/50 px-4 py-3 flex items-center justify-between gap-2">
+        <span className="text-[11px] text-text-muted flex items-center gap-1.5 font-medium">
+          <ShieldCheck className="h-4 w-4 text-status-verified shrink-0" />
+          <span className="truncate">{isLost ? 'Verification Required' : 'Available for Claim'}</span>
         </span>
 
         <Link
-          href={`/items/${item.id}?type=${isLost ? 'LOST' : 'FOUND'}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
+          href={itemUrl}
+          className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-accent-hover hover:shadow-sm active:scale-97 shrink-0"
         >
           View Details
-          <ArrowRight className="h-3 w-3" />
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </div>
