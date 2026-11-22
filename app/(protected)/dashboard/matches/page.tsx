@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import SimilarityGauge from '@/components/matching/SimilarityGauge';
-import { ArrowLeft, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
 import { PotentialMatch, LostItem, FoundItem } from '@/types/app';
 import { formatDate } from '@/lib/utils';
 
@@ -100,7 +100,7 @@ function MatchesViewer() {
 
       <div className="border-b border-border-subtle pb-5">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
-          <Sparkles className="h-4 w-4" />
+          <CheckCircle2 className="h-4 w-4" />
           Automated Matching Pipeline
         </div>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-text-primary">

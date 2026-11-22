@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   X,
   ShieldCheck,
-  Sparkles,
   Lock,
   ArrowRight,
   AlertCircle,
@@ -120,12 +119,6 @@ export default function AuthModal({
             <ShieldCheck className="h-4 w-4 text-accent shrink-0" />
             <span>
               <strong className="text-text-primary">Privacy Protected:</strong> Phone numbers and private identifying markings are never shown publicly.
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-accent shrink-0" />
-            <span>
-              <strong className="text-text-primary">Automated Matching:</strong> Instant notifications when a matching item is reported.
             </span>
           </div>
           <div className="flex items-center gap-2">

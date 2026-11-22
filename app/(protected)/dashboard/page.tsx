@@ -8,8 +8,7 @@ import {
   FileText, 
   ArrowRight,
   ShieldAlert,
-  User,
-  Sparkles
+  User
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, getStatusBadge } from '@/lib/utils';
@@ -169,7 +168,7 @@ export default async function DashboardPage() {
                         href={`/dashboard/matches?lostId=${item.id}`}
                         className="flex items-center gap-1 rounded border border-border-subtle bg-surface-subtle px-2.5 py-1 text-xs font-medium text-accent hover:bg-border-subtle"
                       >
-                        <Sparkles className="h-3 w-3" />
+                        <Search className="h-3 w-3" />
                         Smart Matches
                       </Link>
                       <Link

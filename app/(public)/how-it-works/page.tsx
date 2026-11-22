@@ -3,7 +3,6 @@ import AuthProtectedLink from '@/components/auth/AuthProtectedLink';
 import {
   PlusCircle,
   Search,
-  Sparkles,
   Lock,
   CheckCircle2,
   ArrowRight,
@@ -58,7 +57,7 @@ export default function HowItWorksPage() {
               Instead of relying on luck in noisy social media groups, our algorithm automatically cross-checks lost items with found items across category, city, keywords, colors, and date proximity.
             </p>
             <div className="rounded border border-border-subtle bg-surface-subtle p-2.5 text-[11px] text-text-secondary flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-accent shrink-0" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" />
               <span>Pairs scoring $\ge 50\%$ trigger match suggestions on your user dashboard.</span>
             </div>
           </div>

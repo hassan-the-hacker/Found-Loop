@@ -7,8 +7,7 @@ import {
   ChevronRight,
   ChevronDown,
   Check,
-  RotateCcw,
-  Sparkles
+  RotateCcw
 } from 'lucide-react';
 
 interface DatePickerProps {
