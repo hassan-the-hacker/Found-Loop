@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS, CUSTODY_TYPES } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
+import Select from '@/components/ui/Select';
 import { ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
 
 export default function ReportFoundPage() {
@@ -148,19 +149,16 @@ export default function ReportFoundPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="category">
                 Category *
               </label>
-              <select
-                id="category"
-                required
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {ITEM_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="category"
+                  value={category}
+                  onChange={setCategory}
+                  options={ITEM_CATEGORIES as any}
+                  type="category"
+                  required
+                />
+              </div>
             </div>
 
             <div>
@@ -181,19 +179,16 @@ export default function ReportFoundPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="primaryColor">
                 Primary Color *
               </label>
-              <select
-                id="primaryColor"
-                required
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {ITEM_COLORS.map((col) => (
-                  <option key={col} value={col}>
-                    {col}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="primaryColor"
+                  value={primaryColor}
+                  onChange={setPrimaryColor}
+                  options={ITEM_COLORS as any}
+                  type="color"
+                  required
+                />
+              </div>
             </div>
 
             <div>
@@ -255,19 +250,16 @@ export default function ReportFoundPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="city">
                 City / Region *
               </label>
-              <select
-                id="city"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {INDIAN_CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="city"
+                  value={city}
+                  onChange={setCity}
+                  options={INDIAN_CITIES as any}
+                  type="city"
+                  required
+                />
+              </div>
             </div>
 
             <div className="sm:col-span-2">
@@ -299,19 +291,15 @@ export default function ReportFoundPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="custodyType">
                 Who holds custody of the physical item? *
               </label>
-              <select
-                id="custodyType"
-                required
-                value={custodyType}
-                onChange={(e) => setCustodyType(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {CUSTODY_TYPES.map((cust) => (
-                  <option key={cust.value} value={cust.value}>
-                    {cust.label}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="custodyType"
+                  value={custodyType}
+                  onChange={setCustodyType}
+                  options={CUSTODY_TYPES}
+                  required
+                />
+              </div>
             </div>
 
             <div>

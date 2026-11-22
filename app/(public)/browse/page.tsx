@@ -6,6 +6,7 @@ import { Search, Filter, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS } from '@/lib/constants';
 import ItemCard from '@/components/items/ItemCard';
+import Select from '@/components/ui/Select';
 import { LostItem, FoundItem } from '@/types/app';
 
 function BrowseCatalog() {
@@ -201,54 +202,45 @@ function BrowseCatalog() {
           </div>
 
           {/* Category Filter */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-text-primary">Category</label>
-            <select
+            <Select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs bg-surface focus:border-accent focus:outline-none"
-            >
-              <option value="ALL">All Categories</option>
-              {ITEM_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+              onChange={setCategoryFilter}
+              type="category"
+              options={[
+                { value: 'ALL', label: 'All Categories' },
+                ...ITEM_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
+              ]}
+            />
           </div>
 
           {/* City Filter */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-text-primary">City / Region</label>
-            <select
+            <Select
               value={cityFilter}
-              onChange={(e) => setCityFilter(e.target.value)}
-              className="w-full rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs bg-surface focus:border-accent focus:outline-none"
-            >
-              <option value="ALL">All Indian Cities</option>
-              {INDIAN_CITIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={setCityFilter}
+              type="city"
+              options={[
+                { value: 'ALL', label: 'All Indian Cities' },
+                ...INDIAN_CITIES.map((c) => ({ value: c, label: c })),
+              ]}
+            />
           </div>
 
           {/* Color Filter */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-text-primary">Primary Color</label>
-            <select
+            <Select
               value={colorFilter}
-              onChange={(e) => setColorFilter(e.target.value)}
-              className="w-full rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs bg-surface focus:border-accent focus:outline-none"
-            >
-              <option value="ALL">Any Color</option>
-              {ITEM_COLORS.map((col) => (
-                <option key={col} value={col}>
-                  {col}
-                </option>
-              ))}
-            </select>
+              onChange={setColorFilter}
+              type="color"
+              options={[
+                { value: 'ALL', label: 'Any Color' },
+                ...ITEM_COLORS.map((col) => ({ value: col, label: col })),
+              ]}
+            />
           </div>
 
           {/* Safe Community Notice */}
