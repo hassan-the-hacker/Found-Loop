@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS, CUSTODY_TYPES } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
 import Select from '@/components/ui/Select';
+import DatePicker from '@/components/ui/DatePicker';
 import { ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
 
 export default function ReportFoundPage() {
@@ -236,14 +237,15 @@ export default function ReportFoundPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="foundDate">
                 Date Found *
               </label>
-              <input
-                id="foundDate"
-                type="date"
-                required
-                value={foundDate}
-                onChange={(e) => setFoundDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              />
+              <div className="mt-1">
+                <DatePicker
+                  id="foundDate"
+                  value={foundDate}
+                  onChange={setFoundDate}
+                  maxDate={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
             </div>
 
             <div>

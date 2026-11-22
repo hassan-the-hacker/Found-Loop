@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
 import Select from '@/components/ui/Select';
+import DatePicker from '@/components/ui/DatePicker';
 import { Lock, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 export default function ReportLostPage() {
@@ -233,14 +234,15 @@ export default function ReportLostPage() {
               <label className="block text-xs font-semibold text-text-primary" htmlFor="lostDate">
                 Date Lost *
               </label>
-              <input
-                id="lostDate"
-                type="date"
-                required
-                value={lostDate}
-                onChange={(e) => setLostDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-[#D1D5DB] px-3 py-2 text-sm bg-surface focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              />
+              <div className="mt-1">
+                <DatePicker
+                  id="lostDate"
+                  value={lostDate}
+                  onChange={setLostDate}
+                  maxDate={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
             </div>
 
             <div>
