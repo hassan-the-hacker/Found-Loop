@@ -166,3 +166,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📄 License
 Open source civic technology project built with community trust.
+

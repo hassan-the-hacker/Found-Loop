@@ -74,7 +74,7 @@ export default function ReportFoundPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ itemId: data.id, itemType: 'FOUND' }),
-        }).catch(() => {});
+        }).catch(() => { });
       }
 
       setSuccess(true);
