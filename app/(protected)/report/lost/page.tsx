@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS } from '@/lib/constants';
+import { ITEM_CATEGORIES, INDIAN_STATES, getCitiesForState, ITEM_COLORS } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
 import Select from '@/components/ui/Select';
 import DatePicker from '@/components/ui/DatePicker';
@@ -25,7 +25,16 @@ export default function ReportLostPage() {
   const [primaryColor, setPrimaryColor] = useState<string>(ITEM_COLORS[0]);
   const [secondaryColor, setSecondaryColor] = useState('');
   const [lostDate, setLostDate] = useState(new Date().toISOString().split('T')[0]);
-  const [city, setCity] = useState<string>(INDIAN_CITIES[0]);
+  const [state, setState] = useState<string>(INDIAN_STATES[0]);
+  const [city, setCity] = useState<string>(getCitiesForState(INDIAN_STATES[0])[0]);
+
+  const handleStateChange = (newState: string) => {
+    setState(newState);
+    const cities = getCitiesForState(newState);
+    if (cities.length > 0) {
+      setCity(cities[0]);
+    }
+  };
   const [approximateLocation, setApproximateLocation] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [privateDetails, setPrivateDetails] = useState('');
@@ -54,6 +63,7 @@ export default function ReportLostPage() {
           primary_color: primaryColor,
           secondary_color: secondaryColor.trim() || null,
           lost_date: lostDate,
+          state,
           city,
           approximate_location: approximateLocation.trim(),
           image_url: imageUrl,
@@ -229,7 +239,7 @@ export default function ReportLostPage() {
             2. When & Where Was It Lost?
           </h2>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-semibold text-text-primary" htmlFor="lostDate">
                 Date Lost *
@@ -246,6 +256,24 @@ export default function ReportLostPage() {
             </div>
 
             <div>
+              <label className="block text-xs font-semibold text-text-primary" htmlFor="state">
+                State / UT *
+              </label>
+              <div className="mt-1">
+                <Select
+                  id="state"
+                  value={state}
+                  onChange={handleStateChange}
+                  options={INDIAN_STATES}
+                  type="state"
+                  searchable={true}
+                  searchPlaceholder="Search State..."
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
               <label className="block text-xs font-semibold text-text-primary" htmlFor="city">
                 City / Region *
               </label>
@@ -254,14 +282,16 @@ export default function ReportLostPage() {
                   id="city"
                   value={city}
                   onChange={setCity}
-                  options={INDIAN_CITIES as any}
+                  options={getCitiesForState(state)}
                   type="city"
+                  searchable={true}
+                  searchPlaceholder="Search City..."
                   required
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-text-primary" htmlFor="location">
                 Approximate Landmark / Area *
               </label>

@@ -44,11 +44,15 @@ export function calculateMatchScore(lost: LostItem, found: FoundItem): MatchScor
   const matchedFields: string[] = ['category'];
   const reasons: string[] = [`Category matched: ${lost.category}`];
 
-  // 1. City Check (20% Weight)
+  // 1. City / State Location Check (Up to 20% Weight)
   if (lost.city.toLowerCase() === found.city.toLowerCase()) {
     score += 20;
     matchedFields.push('city');
     reasons.push(`Same City: ${lost.city}`);
+  } else if (lost.state && found.state && lost.state.toLowerCase() === found.state.toLowerCase()) {
+    score += 10;
+    matchedFields.push('state');
+    reasons.push(`Same State / UT: ${lost.state}`);
   }
 
   // 2. Item Title & Keyword Similarity (20% Weight)

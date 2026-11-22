@@ -55,6 +55,7 @@ export interface Database {
           primary_color: string
           secondary_color: string | null
           lost_date: string
+          state?: string | null
           city: string
           approximate_location: string
           latitude: number | null
@@ -75,6 +76,7 @@ export interface Database {
           primary_color: string
           secondary_color?: string | null
           lost_date: string
+          state?: string | null
           city: string
           approximate_location: string
           latitude?: number | null
@@ -95,6 +97,7 @@ export interface Database {
           primary_color?: string
           secondary_color?: string | null
           lost_date?: string
+          state?: string | null
           city?: string
           approximate_location?: string
           latitude?: number | null
@@ -117,6 +120,7 @@ export interface Database {
           primary_color: string
           secondary_color: string | null
           found_date: string
+          state?: string | null
           city: string
           approximate_location: string
           latitude: number | null
@@ -138,6 +142,7 @@ export interface Database {
           primary_color: string
           secondary_color?: string | null
           found_date: string
+          state?: string | null
           city: string
           approximate_location: string
           latitude?: number | null
@@ -159,6 +164,7 @@ export interface Database {
           primary_color?: string
           secondary_color?: string | null
           found_date?: string
+          state?: string | null
           city?: string
           approximate_location?: string
           latitude?: number | null

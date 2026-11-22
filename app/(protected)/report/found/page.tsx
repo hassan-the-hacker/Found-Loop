@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS, CUSTODY_TYPES } from '@/lib/constants';
+import { ITEM_CATEGORIES, INDIAN_STATES, getCitiesForState, ITEM_COLORS, CUSTODY_TYPES } from '@/lib/constants';
 import ImageUpload from '@/components/forms/ImageUpload';
 import Select from '@/components/ui/Select';
 import DatePicker from '@/components/ui/DatePicker';
@@ -25,7 +25,16 @@ export default function ReportFoundPage() {
   const [primaryColor, setPrimaryColor] = useState<string>(ITEM_COLORS[0]);
   const [secondaryColor, setSecondaryColor] = useState('');
   const [foundDate, setFoundDate] = useState(new Date().toISOString().split('T')[0]);
-  const [city, setCity] = useState<string>(INDIAN_CITIES[0]);
+  const [state, setState] = useState<string>(INDIAN_STATES[0]);
+  const [city, setCity] = useState<string>(getCitiesForState(INDIAN_STATES[0])[0]);
+
+  const handleStateChange = (newState: string) => {
+    setState(newState);
+    const cities = getCitiesForState(newState);
+    if (cities.length > 0) {
+      setCity(cities[0]);
+    }
+  };
   const [approximateLocation, setApproximateLocation] = useState('');
   const [custodyType, setCustodyType] = useState<string>(CUSTODY_TYPES[0].value);
   const [custodyDetails, setCustodyDetails] = useState('');
@@ -56,6 +65,7 @@ export default function ReportFoundPage() {
           primary_color: primaryColor,
           secondary_color: secondaryColor.trim() || null,
           found_date: foundDate,
+          state,
           city,
           approximate_location: approximateLocation.trim(),
           custody_type: custodyType as any,
@@ -232,7 +242,7 @@ export default function ReportFoundPage() {
             2. When & Where Was It Found?
           </h2>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-semibold text-text-primary" htmlFor="foundDate">
                 Date Found *
@@ -249,6 +259,24 @@ export default function ReportFoundPage() {
             </div>
 
             <div>
+              <label className="block text-xs font-semibold text-text-primary" htmlFor="state">
+                State / UT *
+              </label>
+              <div className="mt-1">
+                <Select
+                  id="state"
+                  value={state}
+                  onChange={handleStateChange}
+                  options={INDIAN_STATES}
+                  type="state"
+                  searchable={true}
+                  searchPlaceholder="Search State..."
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
               <label className="block text-xs font-semibold text-text-primary" htmlFor="city">
                 City / Region *
               </label>
@@ -257,14 +285,16 @@ export default function ReportFoundPage() {
                   id="city"
                   value={city}
                   onChange={setCity}
-                  options={INDIAN_CITIES as any}
+                  options={getCitiesForState(state)}
                   type="city"
+                  searchable={true}
+                  searchPlaceholder="Search City..."
                   required
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-text-primary" htmlFor="location">
                 Exact Discovery Spot / Landmark *
               </label>

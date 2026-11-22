@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   ChevronDown, 
   Check, 
@@ -13,9 +13,9 @@ import {
   Shirt, 
   HelpCircle, 
   MapPin, 
-  ShieldCheck,
   Building,
-  GraduationCap
+  Search,
+  X
 } from 'lucide-react';
 
 export interface SelectOption {
@@ -31,7 +31,9 @@ interface SelectProps {
   onChange: (value: string) => void;
   options: readonly (string | SelectOption)[] | (string | SelectOption)[] | readonly any[];
   placeholder?: string;
-  type?: 'category' | 'color' | 'city' | 'custody' | 'generic';
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  type?: 'category' | 'color' | 'city' | 'state' | 'custody' | 'generic';
   className?: string;
   required?: boolean;
 }
@@ -76,38 +78,66 @@ export default function Select({
   onChange,
   options,
   placeholder = 'Select an option',
+  searchable = false,
+  searchPlaceholder = 'Search...',
   type = 'generic',
   className = '',
   required = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Normalize options
-  const normalizedOptions: SelectOption[] = options.map((opt) => {
-    if (typeof opt === 'string') {
-      let icon: React.ReactNode = null;
-      let colorDot: string | undefined = undefined;
+  const normalizedOptions: SelectOption[] = useMemo(() => {
+    return options.map((opt) => {
+      if (typeof opt === 'string') {
+        let icon: React.ReactNode = null;
+        let colorDot: string | undefined = undefined;
 
-      if (type === 'category') {
-        icon = getCategoryIcon(opt);
-      } else if (type === 'color') {
-        colorDot = COLOR_SWATCHES[opt] || '#CBD5E1';
-      } else if (type === 'city') {
-        icon = <MapPin className="h-3.5 w-3.5 text-text-muted shrink-0" />;
+        if (type === 'category') {
+          icon = getCategoryIcon(opt);
+        } else if (type === 'color') {
+          colorDot = COLOR_SWATCHES[opt] || '#CBD5E1';
+        } else if (type === 'city') {
+          icon = <MapPin className="h-3.5 w-3.5 text-text-muted shrink-0" />;
+        } else if (type === 'state') {
+          icon = <Building className="h-3.5 w-3.5 text-accent/80 shrink-0" />;
+        }
+
+        return {
+          value: opt,
+          label: opt,
+          icon,
+          colorDot,
+        };
       }
-
-      return {
-        value: opt,
-        label: opt,
-        icon,
-        colorDot,
-      };
-    }
-    return opt;
-  });
+      return opt;
+    });
+  }, [options, type]);
 
   const selectedOption = normalizedOptions.find((opt) => opt.value === value);
+
+  // Filter options based on search term
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm.trim()) return normalizedOptions;
+    const q = searchTerm.toLowerCase();
+    return normalizedOptions.filter(
+      (opt) => opt.label.toLowerCase().includes(q) || opt.value.toLowerCase().includes(q)
+    );
+  }, [normalizedOptions, searchTerm]);
+
+  // Focus search input when opened & reset search on close
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    } else {
+      setSearchTerm('');
+    }
+  }, [isOpen]);
 
   // Close on outside click
   useEffect(() => {
@@ -192,39 +222,76 @@ export default function Select({
       {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute z-50 left-0 right-0 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border-subtle bg-surface p-1 shadow-lg ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95">
+          {/* Integrated Search Box */}
+          {searchable && (
+            <div className="sticky top-0 z-10 bg-surface px-1.5 pb-1.5 pt-1 border-b border-border-subtle mb-1">
+              <div className="relative flex items-center">
+                <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-text-muted" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={searchPlaceholder}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  className="w-full rounded-md border border-[#D1D5DB] bg-surface-subtle py-1 pl-8 pr-7 text-xs placeholder:text-text-muted focus:border-accent focus:bg-surface focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchTerm('');
+                    }}
+                    className="absolute right-2 text-text-muted hover:text-text-primary"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div role="listbox" className="space-y-0.5">
-            {normalizedOptions.map((opt) => {
-              const isSelected = opt.value === value;
-              return (
-                <div
-                  key={opt.value}
-                  role="option"
-                  aria-selected={isSelected}
-                  onClick={() => handleSelect(opt.value)}
-                  className={`flex items-center justify-between rounded-md px-3 py-2 text-sm cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-accent/10 font-semibold text-accent'
-                      : 'text-text-primary hover:bg-[#F3F4F6] hover:text-text-primary'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 truncate">
-                    {opt.icon}
-                    {opt.colorDot && (
-                      <span
-                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/15 shadow-2xs"
-                        style={{
-                          background: opt.colorDot,
-                        }}
-                      />
+            {filteredOptions.length === 0 ? (
+              <div className="py-4 text-center text-xs text-text-muted">
+                No matching results found
+              </div>
+            ) : (
+              filteredOptions.map((opt) => {
+                const isSelected = opt.value === value;
+                return (
+                  <div
+                    key={opt.value}
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => handleSelect(opt.value)}
+                    className={`flex items-center justify-between rounded-md px-3 py-2 text-sm cursor-pointer transition-colors ${
+                      isSelected
+                        ? 'bg-accent/10 font-semibold text-accent'
+                        : 'text-text-primary hover:bg-[#F3F4F6] hover:text-text-primary'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 truncate">
+                      {opt.icon}
+                      {opt.colorDot && (
+                        <span
+                          className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/15 shadow-2xs"
+                          style={{
+                            background: opt.colorDot,
+                          }}
+                        />
+                      )}
+                      <span className="truncate">{opt.label}</span>
+                    </div>
+                    {isSelected && (
+                      <Check className="h-4 w-4 text-accent shrink-0 ml-2 stroke-[2.5]" />
                     )}
-                    <span className="truncate">{opt.label}</span>
                   </div>
-                  {isSelected && (
-                    <Check className="h-4 w-4 text-accent shrink-0 ml-2 stroke-[2.5]" />
-                  )}
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       )}

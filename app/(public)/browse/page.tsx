@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Filter, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { ITEM_CATEGORIES, INDIAN_CITIES, ITEM_COLORS } from '@/lib/constants';
+import { ITEM_CATEGORIES, INDIAN_STATES, getCitiesForState, INDIAN_CITIES, ITEM_COLORS } from '@/lib/constants';
 import ItemCard from '@/components/items/ItemCard';
 import Select from '@/components/ui/Select';
 import { LostItem, FoundItem } from '@/types/app';
@@ -17,14 +17,21 @@ function BrowseCatalog() {
   const initialType = (searchParams.get('type') as 'ALL' | 'LOST' | 'FOUND') || 'ALL';
   const initialQuery = searchParams.get('q') || '';
   const initialCategory = searchParams.get('category') || 'ALL';
+  const initialState = searchParams.get('state') || 'ALL';
   const initialCity = searchParams.get('city') || 'ALL';
 
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LOST' | 'FOUND'>(initialType);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [categoryFilter, setCategoryFilter] = useState(initialCategory);
+  const [stateFilter, setStateFilter] = useState(initialState);
   const [cityFilter, setCityFilter] = useState(initialCity);
   const [colorFilter, setColorFilter] = useState('ALL');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  const handleStateFilterChange = (newState: string) => {
+    setStateFilter(newState);
+    setCityFilter('ALL');
+  };
 
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
@@ -77,6 +84,11 @@ function BrowseCatalog() {
         return false;
       }
 
+      // State match
+      if (stateFilter !== 'ALL' && (item as any).state && (item as any).state !== stateFilter) {
+        return false;
+      }
+
       // City match
       if (cityFilter !== 'ALL' && item.city !== cityFilter) {
         return false;
@@ -89,12 +101,13 @@ function BrowseCatalog() {
 
       return true;
     });
-  }, [lostItems, foundItems, typeFilter, searchQuery, categoryFilter, cityFilter, colorFilter]);
+  }, [lostItems, foundItems, typeFilter, searchQuery, categoryFilter, stateFilter, cityFilter, colorFilter]);
 
   const clearAllFilters = () => {
     setTypeFilter('ALL');
     setSearchQuery('');
     setCategoryFilter('ALL');
+    setStateFilter('ALL');
     setCityFilter('ALL');
     setColorFilter('ALL');
     router.push('/browse');
@@ -104,6 +117,7 @@ function BrowseCatalog() {
     typeFilter !== 'ALL' ||
     searchQuery !== '' ||
     categoryFilter !== 'ALL' ||
+    stateFilter !== 'ALL' ||
     cityFilter !== 'ALL' ||
     colorFilter !== 'ALL';
 
@@ -208,9 +222,27 @@ function BrowseCatalog() {
               value={categoryFilter}
               onChange={setCategoryFilter}
               type="category"
+              searchable={true}
+              searchPlaceholder="Search category..."
               options={[
                 { value: 'ALL', label: 'All Categories' },
                 ...ITEM_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
+              ]}
+            />
+          </div>
+
+          {/* State Filter */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-text-primary">State / UT</label>
+            <Select
+              value={stateFilter}
+              onChange={handleStateFilterChange}
+              type="state"
+              searchable={true}
+              searchPlaceholder="Search State / UT..."
+              options={[
+                { value: 'ALL', label: 'All States & UTs' },
+                ...INDIAN_STATES.map((s) => ({ value: s, label: s })),
               ]}
             />
           </div>
@@ -222,9 +254,13 @@ function BrowseCatalog() {
               value={cityFilter}
               onChange={setCityFilter}
               type="city"
+              searchable={true}
+              searchPlaceholder="Search City..."
               options={[
-                { value: 'ALL', label: 'All Indian Cities' },
-                ...INDIAN_CITIES.map((c) => ({ value: c, label: c })),
+                { value: 'ALL', label: stateFilter === 'ALL' ? 'All Indian Cities' : `All Cities in ${stateFilter}` },
+                ...(stateFilter === 'ALL'
+                  ? INDIAN_CITIES.map((c) => ({ value: c, label: c }))
+                  : getCitiesForState(stateFilter).map((c) => ({ value: c, label: c }))),
               ]}
             />
           </div>
