@@ -78,7 +78,7 @@ export default function AdminConsolePage() {
       }
     }
     loadAdminData();
-  }, [supabase]);
+  }, []);
 
   const handleResolveFlag = async (id: string, action: 'DISMISSED' | 'ACTION_TAKEN') => {
     try {

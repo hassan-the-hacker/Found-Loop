@@ -79,6 +79,30 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Admin Quick Access Banner if user has admin privileges */}
+      {(user.email?.toLowerCase().includes('admin') || user.role === 'admin') && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-200 text-amber-900 shrink-0">
+              <ShieldAlert className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-950">Administrator Access Active</h3>
+              <p className="text-xs text-amber-800">
+                You have administrative authority to resolve dispute claims, moderate flagged items, and view live stats.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 rounded-md bg-amber-800 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-900 shrink-0"
+          >
+            <ShieldAlert className="h-4 w-4" />
+            Open Admin Console →
+          </Link>
+        </div>
+      )}
+
       {/* Real Metric Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-lg border border-border-subtle bg-surface p-4 shadow-sm">

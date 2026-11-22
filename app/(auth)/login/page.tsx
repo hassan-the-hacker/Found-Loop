@@ -49,7 +49,18 @@ function LoginForm() {
             localStorage.setItem('foundloop_session', userStr);
           } catch {}
         }
-        window.location.href = redirectTo;
+        const userIsAdmin =
+          email.toLowerCase().includes('admin') ||
+          (data.user as any)?.role === 'admin';
+
+        const destination =
+          redirectTo && redirectTo !== '/dashboard'
+            ? redirectTo
+            : userIsAdmin
+            ? '/admin'
+            : '/dashboard';
+
+        window.location.href = destination;
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';

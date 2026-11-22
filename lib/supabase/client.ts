@@ -279,12 +279,17 @@ function createLocalClient(): any {
   };
 }
 
+let localClientSingleton: any = null;
+
 export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (isPlaceholder(supabaseUrl) || !supabaseKey || supabaseKey.includes('placeholder')) {
-    return createLocalClient();
+    if (!localClientSingleton) {
+      localClientSingleton = createLocalClient();
+    }
+    return localClientSingleton;
   }
 
   return createBrowserClient<Database>(supabaseUrl!, supabaseKey);

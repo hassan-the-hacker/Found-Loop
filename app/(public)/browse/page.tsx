@@ -58,7 +58,7 @@ function BrowseCatalog() {
       }
     }
     fetchItems();
-  }, [supabase]);
+  }, []);
 
   // Combine & Filter Items
   const filteredItems = useMemo(() => {

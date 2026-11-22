@@ -26,16 +26,24 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function checkUser() {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      setUser((prev) => {
+        if (prev?.id === user?.id) return prev;
+        return user;
+      });
     }
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setUser(session?.user ?? null);
+      setUser((prev) => {
+        const nextId = session?.user?.id ?? null;
+        const prevId = prev?.id ?? null;
+        if (nextId === prevId) return prev;
+        return session?.user ?? null;
+      });
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, []);
 
   const openAuthModal = useCallback(
     (url: string = '/dashboard', type: 'lost' | 'found' | 'general' = 'general') => {

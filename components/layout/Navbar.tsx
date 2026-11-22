@@ -26,7 +26,7 @@ export default function Navbar() {
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      setUser((prev) => (prev?.id === user?.id ? prev : user));
       if (user) {
         const { data } = await supabase
           .from('profiles')
@@ -39,11 +39,16 @@ export default function Navbar() {
     loadUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setUser(session?.user ?? null);
+      setUser((prev) => {
+        const nextId = session?.user?.id ?? null;
+        const prevId = prev?.id ?? null;
+        if (nextId === prevId) return prev;
+        return session?.user ?? null;
+      });
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -61,6 +66,11 @@ export default function Navbar() {
     { name: 'How It Works', href: '/how-it-works' },
     { name: 'Safety', href: '/safety' },
   ];
+
+  const isAdmin =
+    user?.email?.toLowerCase().includes('admin') ||
+    (user as any)?.role === 'admin' ||
+    profile?.role === 'admin';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-surface/95 backdrop-blur-sm">
@@ -121,13 +131,13 @@ export default function Navbar() {
                 <User className="h-3.5 w-3.5" />
                 Dashboard
               </Link>
-              {profile?.role === 'admin' && (
+              {isAdmin && (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-1 rounded-md bg-amber-100 px-2.5 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-200"
+                  className="flex items-center gap-1.5 rounded-md bg-amber-100 border border-amber-300 px-2.5 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-200 shadow-sm transition-colors"
                 >
-                  <ShieldAlert className="h-3.5 w-3.5" />
-                  Admin
+                  <ShieldAlert className="h-3.5 w-3.5 text-amber-700" />
+                  Admin Console
                 </Link>
               )}
               <button
@@ -217,6 +227,16 @@ export default function Navbar() {
                     <User className="h-4 w-4" />
                     My Dashboard
                   </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-md bg-amber-100 border border-amber-200 p-2 text-sm font-semibold text-amber-900"
+                    >
+                      <ShieldAlert className="h-4 w-4 text-amber-700" />
+                      Admin Console
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
