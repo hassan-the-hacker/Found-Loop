@@ -10,6 +10,19 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/pagefile.sys',
+        '**/dumpstack.log.tmp',
+        '**/swapfile.sys',
+        '**/.git/**',
+        '**/node_modules/**',
+      ],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
