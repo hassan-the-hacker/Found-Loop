@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { 
-  PlusCircle, 
-  Search, 
-  Sparkles, 
-  Lock, 
-  CheckCircle2, 
+import AuthProtectedLink from '@/components/auth/AuthProtectedLink';
+import {
+  PlusCircle,
+  Search,
+  Sparkles,
+  Lock,
+  CheckCircle2,
   ArrowRight,
   ShieldCheck,
   Building
@@ -116,18 +117,20 @@ export default function HowItWorksPage() {
           Help build a trusted, helpful community in your college, station, or neighborhood.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <Link
+          <AuthProtectedLink
             href="/report/lost"
+            actionType="lost"
             className="rounded-md bg-accent px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-hover"
           >
             I Lost Something
-          </Link>
-          <Link
+          </AuthProtectedLink>
+          <AuthProtectedLink
             href="/report/found"
+            actionType="found"
             className="rounded-md border border-[#D1D5DB] bg-surface px-5 py-2.5 text-xs font-semibold text-text-primary hover:bg-surface-subtle"
           >
             I Found Something
-          </Link>
+          </AuthProtectedLink>
         </div>
       </div>
     </div>

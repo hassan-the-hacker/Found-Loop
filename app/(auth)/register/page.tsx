@@ -63,7 +63,7 @@ export default function RegisterPage() {
           document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
           try {
             localStorage.setItem('foundloop_session', userStr);
-          } catch {}
+          } catch { }
         }
         setSuccess(true);
         setTimeout(() => {

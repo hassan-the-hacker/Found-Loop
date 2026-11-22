@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { AuthModalProvider } from '@/components/auth/AuthModalContext';
 
 export const metadata: Metadata = {
   title: 'FoundLoop – Community-Powered Lost & Found Platform',
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-canvas text-text-primary">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthModalProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthModalProvider>
       </body>
     </html>
   );

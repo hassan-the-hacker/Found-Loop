@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Search, PlusCircle, User, LogOut, Menu, X, ShieldAlert } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Profile } from '@/types/app';
+import { useAuthModal } from '@/components/auth/AuthModalContext';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -13,6 +14,14 @@ export default function Navbar() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const supabase = createClient();
+  const { openAuthModal } = useAuthModal();
+
+  const handleReportClick = (e: React.MouseEvent, href: string, type: 'lost' | 'found') => {
+    if (!user) {
+      e.preventDefault();
+      openAuthModal(href, type);
+    }
+  };
 
   useEffect(() => {
     async function loadUser() {
@@ -88,6 +97,7 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <Link
             href="/report/lost"
+            onClick={(e) => handleReportClick(e, '/report/lost', 'lost')}
             className="flex items-center gap-1.5 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary transition-colors hover:bg-surface-subtle"
           >
             <PlusCircle className="h-3.5 w-3.5 text-status-lost" />
@@ -95,6 +105,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/report/found"
+            onClick={(e) => handleReportClick(e, '/report/found', 'found')}
             className="flex items-center gap-1.5 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary transition-colors hover:bg-surface-subtle"
           >
             <PlusCircle className="h-3.5 w-3.5 text-status-found" />
@@ -175,7 +186,10 @@ export default function Navbar() {
             <div className="mt-2 flex flex-col gap-2 border-t border-border-subtle pt-3">
               <Link
                 href="/report/lost"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleReportClick(e, '/report/lost', 'lost');
+                }}
                 className="flex items-center gap-2 rounded-md border border-border-subtle p-2 text-sm font-semibold text-text-primary"
               >
                 <PlusCircle className="h-4 w-4 text-status-lost" />
@@ -183,7 +197,10 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/report/found"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleReportClick(e, '/report/found', 'found');
+                }}
                 className="flex items-center gap-2 rounded-md border border-border-subtle p-2 text-sm font-semibold text-text-primary"
               >
                 <PlusCircle className="h-4 w-4 text-status-found" />

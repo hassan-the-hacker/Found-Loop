@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import { 
-  Search, 
-  MapPin, 
-  ArrowRight, 
-  ShieldCheck, 
-  Clock, 
-  HelpCircle, 
-  CheckCircle2, 
-  FileText, 
+import AuthProtectedLink from '@/components/auth/AuthProtectedLink';
+import {
+  Search,
+  MapPin,
+  ArrowRight,
+  ShieldCheck,
+  Clock,
+  HelpCircle,
+  CheckCircle2,
+  FileText,
   Lock,
   Tag
 } from 'lucide-react';
@@ -135,21 +136,23 @@ export default async function HomePage() {
 
           {/* Primary Action Buttons */}
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link
+            <AuthProtectedLink
               href="/report/lost"
+              actionType="lost"
               className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-accent-hover sm:w-auto"
             >
               <span>I Lost Something</span>
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </AuthProtectedLink>
 
-            <Link
+            <AuthProtectedLink
               href="/report/found"
+              actionType="found"
               className="flex w-full items-center justify-center gap-2 rounded-md border border-[#D1D5DB] bg-surface px-6 py-3 text-sm font-semibold text-text-primary transition-all hover:bg-surface-subtle sm:w-auto"
             >
               <span>I Found Something</span>
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </AuthProtectedLink>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-text-muted">

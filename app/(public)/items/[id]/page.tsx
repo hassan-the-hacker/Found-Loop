@@ -1,14 +1,15 @@
 import Link from 'next/link';
+import AuthProtectedLink from '@/components/auth/AuthProtectedLink';
 import { notFound } from 'next/navigation';
-import { 
-  MapPin, 
-  Calendar, 
-  Tag, 
-  ArrowLeft, 
-  ShieldCheck, 
-  Lock, 
-  AlertTriangle, 
-  Box, 
+import {
+  MapPin,
+  Calendar,
+  Tag,
+  ArrowLeft,
+  ShieldCheck,
+  Lock,
+  AlertTriangle,
+  Box,
   CheckCircle,
   Building,
   UserCheck
@@ -141,9 +142,8 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
           <div>
             <div className="flex items-center gap-2">
               <span
-                className={`rounded px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
-                  isLost ? 'bg-status-lost text-white' : 'bg-status-found text-white'
-                }`}
+                className={`rounded px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${isLost ? 'bg-status-lost text-white' : 'bg-status-found text-white'
+                  }`}
               >
                 {isLost ? 'LOST REPORT' : 'FOUND BELONGING'}
               </span>
@@ -233,21 +233,23 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
           {/* Primary Action Buttons */}
           <div className="space-y-3 pt-2">
             {!isLost ? (
-              <Link
+              <AuthProtectedLink
                 href={`/items/${item.id}/claim`}
+                actionType="general"
                 className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-hover"
               >
                 <UserCheck className="h-4 w-4" />
                 Claim This Item (Prove Ownership)
-              </Link>
+              </AuthProtectedLink>
             ) : (
-              <Link
+              <AuthProtectedLink
                 href="/report/found"
+                actionType="found"
                 className="flex w-full items-center justify-center gap-2 rounded-md bg-status-found px-6 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
               >
                 <CheckCircle className="h-4 w-4" />
                 I Found An Item Matching This Report
-              </Link>
+              </AuthProtectedLink>
             )}
 
             <div className="flex items-center justify-between text-xs text-text-muted px-1">

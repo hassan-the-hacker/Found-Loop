@@ -156,7 +156,7 @@ function createLocalServerClient(): any {
       async signOut() {
         try {
           cookieStore.delete('foundloop_session');
-        } catch {}
+        } catch { }
         return { error: null };
       },
       async resetPasswordForEmail(_email: string) {
@@ -203,7 +203,7 @@ export function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options as any)
             );
-          } catch {}
+          } catch { }
         },
       },
     }

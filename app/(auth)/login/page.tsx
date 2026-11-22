@@ -78,6 +78,20 @@ function LoginForm() {
         </p>
       </div>
 
+      {redirectTo.includes('/report/lost') && (
+        <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+          <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+          <span>Please sign in or register to report your lost item.</span>
+        </div>
+      )}
+
+      {redirectTo.includes('/report/found') && (
+        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
+          <AlertCircle className="h-4 w-4 shrink-0 text-emerald-600" />
+          <span>Please sign in or register to report a found belonging.</span>
+        </div>
+      )}
+
       {error && (
         <div className="flex items-start gap-2.5 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
           <AlertCircle className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />

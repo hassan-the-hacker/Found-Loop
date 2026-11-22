@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AuthProtectedLink from '@/components/auth/AuthProtectedLink';
 import { Search, Heart, ShieldCheck, MapPin } from 'lucide-react';
 
 export default function Footer() {
@@ -31,10 +32,10 @@ export default function Footer() {
                 <Link href="/browse" className="hover:text-text-primary">Browse All Listings</Link>
               </li>
               <li>
-                <Link href="/report/lost" className="hover:text-text-primary">Report Lost Property</Link>
+                <AuthProtectedLink href="/report/lost" actionType="lost" className="hover:text-text-primary">Report Lost Property</AuthProtectedLink>
               </li>
               <li>
-                <Link href="/report/found" className="hover:text-text-primary">Report Found Belonging</Link>
+                <AuthProtectedLink href="/report/found" actionType="found" className="hover:text-text-primary">Report Found Belonging</AuthProtectedLink>
               </li>
               <li>
                 <Link href="/dashboard" className="hover:text-text-primary">User Dashboard</Link>

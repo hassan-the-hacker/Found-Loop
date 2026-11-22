@@ -32,7 +32,7 @@ function parseCookieUser(): any {
   try {
     const local = localStorage.getItem('foundloop_session');
     if (local) return safeParseUser(local);
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -185,7 +185,7 @@ function createLocalClient(): any {
             document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
             try {
               localStorage.setItem('foundloop_session', userStr);
-            } catch {}
+            } catch { }
           }
           return json;
         } catch (err: any) {
@@ -212,7 +212,7 @@ function createLocalClient(): any {
             document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
             try {
               localStorage.setItem('foundloop_session', userStr);
-            } catch {}
+            } catch { }
           }
           return json;
         } catch (err: any) {
@@ -231,15 +231,15 @@ function createLocalClient(): any {
           document.cookie = 'foundloop_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
           try {
             localStorage.removeItem('foundloop_session');
-          } catch {}
+          } catch { }
         }
         try {
           await fetch('/api/local-db', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'signout' }),
-          }).catch(() => {});
-        } catch {}
+          }).catch(() => { });
+        } catch { }
         return { error: null };
       },
       onAuthStateChange(callback: (event: string, session: any) => void) {
@@ -252,7 +252,7 @@ function createLocalClient(): any {
         return {
           data: {
             subscription: {
-              unsubscribe: () => {},
+              unsubscribe: () => { },
             },
           },
         };
