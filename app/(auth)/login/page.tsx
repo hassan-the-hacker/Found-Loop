@@ -35,6 +35,17 @@ function LoginForm() {
           setError(
             'Demo Note: Connect your real Supabase credentials in .env.local to enable cloud auth. In local demo mode, check database-schema.md.'
           );
+        } else if (
+          authError.message.includes('Invalid path specified in request URL') ||
+          authError.message.includes('PGRST125')
+        ) {
+          setError(
+            'Invalid Supabase Project URL in Vercel settings. In Vercel Project Settings > Environment Variables, please ensure NEXT_PUBLIC_SUPABASE_URL is set to "https://<your-project-id>.supabase.co" without "/rest/v1" or trailing slashes.'
+          );
+        } else if (authError.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please verify and try again, or create an account if you do not have one.');
+        } else if (authError.message.includes('Email not confirmed')) {
+          setError('Please confirm your email address by checking your inbox (or spam), or turn off "Confirm email" in Supabase Auth Settings.');
         } else {
           setError(authError.message);
         }

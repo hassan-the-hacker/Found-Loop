@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const supabase = createClient();
@@ -24,6 +25,7 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setInfoMessage(null);
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
@@ -51,6 +53,13 @@ export default function RegisterPage() {
       if (authError) {
         if (authError.message.includes('fetch failed') || authError.message.includes('placeholder')) {
           setError('Demo Note: To create live cloud accounts, add your active Supabase URL and Key into .env.local.');
+        } else if (
+          authError.message.includes('Invalid path specified in request URL') ||
+          authError.message.includes('PGRST125')
+        ) {
+          setError(
+            'Invalid Supabase Project URL in Vercel settings. In Vercel Project Settings > Environment Variables, please ensure NEXT_PUBLIC_SUPABASE_URL is set to "https://<your-project-id>.supabase.co" without "/rest/v1" or trailing slashes.'
+          );
         } else {
           setError(authError.message);
         }
@@ -58,6 +67,21 @@ export default function RegisterPage() {
       }
 
       if (data?.user) {
+        // Supabase returns empty identities array if user email is already registered
+        if (data.user.identities && data.user.identities.length === 0) {
+          setError('An account with this email address already exists. Please sign in instead.');
+          return;
+        }
+
+        // Email confirmation is required by Supabase (session is null)
+        if (!data.session) {
+          setSuccess(true);
+          setInfoMessage(
+            `Account created! A confirmation email has been sent to ${email}. Please check your inbox (or spam) to verify your account, then sign in. (Tip: Disable "Confirm email" in Supabase Auth Settings to allow instant sign up).`
+          );
+          return;
+        }
+
         if (typeof document !== 'undefined') {
           const userStr = JSON.stringify(data.user);
           document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
@@ -99,7 +123,22 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {success && (
+        {infoMessage && (
+          <div className="flex flex-col gap-2 rounded-md border border-blue-200 bg-blue-50 p-3.5 text-xs text-blue-950">
+            <div className="flex items-start gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600 mt-0.5" />
+              <div className="leading-relaxed">{infoMessage}</div>
+            </div>
+            <Link
+              href="/login"
+              className="mt-1 self-start inline-flex items-center gap-1 font-semibold text-accent hover:underline"
+            >
+              Go to Sign In <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        )}
+
+        {success && !infoMessage && (
           <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>Account created successfully! Redirecting to dashboard...</span>

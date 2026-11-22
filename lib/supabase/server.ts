@@ -2,11 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Database } from '@/types/database';
 import { queryTable, insertRow, updateRow, upsertRow } from '@/lib/local-db';
-
-function isPlaceholder(url?: string): boolean {
-  if (!url) return true;
-  return url.includes('placeholder') || url.includes('example.com') || url.includes('localhost');
-}
+import { sanitizeSupabaseUrl, sanitizeSupabaseKey, isPlaceholder } from './config';
 
 class ServerLocalQueryBuilder {
   private table: string;
@@ -182,8 +178,8 @@ function createLocalServerClient(): any {
 }
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = sanitizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const supabaseKey = sanitizeSupabaseKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   if (isPlaceholder(supabaseUrl) || !supabaseKey || supabaseKey.includes('placeholder')) {
     return createLocalServerClient();
@@ -191,7 +187,7 @@ export function createClient() {
 
   const cookieStore = cookies();
   return createServerClient<Database>(
-    supabaseUrl!,
+    supabaseUrl,
     supabaseKey,
     {
       cookies: {

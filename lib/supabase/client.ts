@@ -1,26 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { Database } from '@/types/database';
-
-function isPlaceholder(url?: string): boolean {
-  if (!url) return true;
-  return url.includes('placeholder') || url.includes('example.com') || url.includes('localhost');
-}
-
-export function safeParseUser(raw?: string): any {
-  if (!raw) return null;
-  try {
-    const decoded = decodeURIComponent(raw);
-    const parsed = JSON.parse(decoded);
-    return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
-  } catch {
-    try {
-      const parsed = JSON.parse(raw);
-      return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
-    } catch {
-      return null;
-    }
-  }
-}
+import { sanitizeSupabaseUrl, sanitizeSupabaseKey, isPlaceholder, safeParseUser } from './config';
+export { safeParseUser, sanitizeSupabaseUrl, sanitizeSupabaseKey, isPlaceholder };
 
 function parseCookieUser(): any {
   if (typeof document === 'undefined') return null;
@@ -282,8 +263,8 @@ function createLocalClient(): any {
 let localClientSingleton: any = null;
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = sanitizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const supabaseKey = sanitizeSupabaseKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   if (isPlaceholder(supabaseUrl) || !supabaseKey || supabaseKey.includes('placeholder')) {
     if (!localClientSingleton) {
@@ -292,5 +273,5 @@ export function createClient() {
     return localClientSingleton;
   }
 
-  return createBrowserClient<Database>(supabaseUrl!, supabaseKey);
+  return createBrowserClient<Database>(supabaseUrl, supabaseKey);
 }
