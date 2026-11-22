@@ -1,6 +1,13 @@
 {
   "profiles": [
     {
+      "id": "usr_1795376391186_j9crm",
+      "created_at": "2026-11-22T19:39:51.189Z",
+      "email": "new-launch1@yopmail.com",
+      "full_name": "gsdvfbdv",
+      "role": "user"
+    },
+    {
       "id": "usr_1795357676161_ax06t",
       "created_at": "2026-11-22T14:27:56.163Z",
       "email": "hazii2@yopmail.com",
@@ -164,6 +171,16 @@
       },
       "role": "authenticated",
       "created_at": "2026-11-22T14:27:56.161Z"
+    },
+    {
+      "id": "usr_1795376391186_j9crm",
+      "email": "new-launch1@yopmail.com",
+      "password": "Test@123",
+      "user_metadata": {
+        "full_name": "gsdvfbdv"
+      },
+      "role": "authenticated",
+      "created_at": "2026-11-22T19:39:51.186Z"
     }
   ]
 }

@@ -5,6 +5,17 @@ import { sanitizeSupabaseUrl, sanitizeSupabaseKey, isPlaceholder, safeParseUser 
 export { safeParseUser };
 
 export async function updateSession(request: NextRequest) {
+  // If Supabase redirected to /?code=... instead of /api/auth/callback, intercept and exchange code
+  const authCode = request.nextUrl.searchParams.get('code');
+  if (authCode && !request.nextUrl.pathname.startsWith('/api/auth/callback')) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = '/api/auth/callback';
+    callbackUrl.searchParams.set('code', authCode);
+    const destination = request.nextUrl.pathname === '/' ? '/dashboard' : request.nextUrl.pathname;
+    callbackUrl.searchParams.set('next', destination);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   const supabaseUrl = sanitizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
   const supabaseKey = sanitizeSupabaseKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 

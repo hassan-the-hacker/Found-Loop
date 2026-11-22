@@ -40,10 +40,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const redirectOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+      const emailRedirectTo = redirectOrigin ? `${redirectOrigin}/api/auth/callback` : undefined;
+
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo,
           data: {
             full_name: fullName,
           },
