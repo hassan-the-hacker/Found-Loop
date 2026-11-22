@@ -8,10 +8,13 @@ export async function POST(request: NextRequest) {
 
     if (action === 'signup') {
       const { email, password, full_name } = body;
+      const cleanEmail = (email || '').trim().toLowerCase();
       const db = getLocalDb();
       if (!db.registered_users) db.registered_users = [];
 
-      const existingUser = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const existingUser = db.registered_users.find(
+        (u) => (u.email || '').trim().toLowerCase() === cleanEmail
+      );
       if (existingUser) {
         return NextResponse.json(
           {
@@ -24,10 +27,10 @@ export async function POST(request: NextRequest) {
 
       const user = {
         id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        email,
+        email: cleanEmail,
         password,
-        user_metadata: { full_name: full_name || email.split('@')[0] },
-        role: email.toLowerCase().includes('admin') ? 'admin' : 'authenticated',
+        user_metadata: { full_name: full_name || cleanEmail.split('@')[0] },
+        role: cleanEmail.includes('admin') ? 'admin' : 'authenticated',
         created_at: new Date().toISOString(),
       };
       db.registered_users.push(user);
@@ -77,10 +80,13 @@ export async function POST(request: NextRequest) {
 
     if (action === 'signin') {
       const { email, password } = body;
+      const cleanEmail = (email || '').trim().toLowerCase();
       const db = getLocalDb();
       if (!db.registered_users) db.registered_users = [];
 
-      const user = db.registered_users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const user = db.registered_users.find(
+        (u) => (u.email || '').trim().toLowerCase() === cleanEmail
+      );
 
       // STRICT: Must be signed up first
       if (!user) {
@@ -93,9 +99,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Allow demo user password flexibility
-      const isDemoUser = ['admin@foundloop.in', 'moderator@foundloop.in', 'hazyy@yopmail.com', 'los-fou@yopmail.com'].includes(user.email.toLowerCase());
-      if (!isDemoUser && user.password !== password) {
+      // STRICT: Password must match registered password
+      if (user.password !== password) {
         return NextResponse.json(
           {
             data: { user: null, session: null },
