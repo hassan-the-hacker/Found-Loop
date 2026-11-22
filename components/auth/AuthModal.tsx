@@ -81,10 +81,10 @@ export default function AuthModal({
         <div className="flex flex-col items-center text-center">
           <div
             className={`flex h-12 w-12 items-center justify-center rounded-full mb-3.5 shadow-sm ${isLost
-                ? 'bg-status-lost-bg text-status-lost border border-red-200'
-                : isFound
-                  ? 'bg-status-found-bg text-status-found border border-emerald-200'
-                  : 'bg-accent/10 text-accent border border-accent/20'
+              ? 'bg-status-lost-bg text-status-lost border border-red-200'
+              : isFound
+                ? 'bg-status-found-bg text-status-found border border-emerald-200'
+                : 'bg-accent/10 text-accent border border-accent/20'
               }`}
           >
             {isLost ? (

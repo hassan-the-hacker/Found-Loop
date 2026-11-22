@@ -70,12 +70,6 @@ function LoginForm() {
     }
   };
 
-  const handleQuickDemoLogin = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
-  };
-
   return (
     <div className="w-full max-w-md space-y-8 rounded-lg border border-border-subtle bg-surface p-8 shadow-sm">
       {/* Header */}
@@ -177,29 +171,6 @@ function LoginForm() {
           <ArrowRight className="h-4 w-4" />
         </button>
       </form>
-
-      {/* Quick Demo Fill Buttons */}
-      <div className="rounded-md border border-border-subtle bg-surface-subtle p-3 space-y-2">
-        <span className="block text-[11px] font-semibold text-text-secondary uppercase tracking-wider">
-          Demo One-Click Sign In:
-        </span>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => handleQuickDemoLogin('hazyy@yopmail.com', 'password123')}
-            className="rounded border border-border-subtle bg-surface px-2.5 py-1 text-xs font-medium text-text-primary hover:bg-border-subtle transition-colors"
-          >
-            User (hazyy@yopmail.com)
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickDemoLogin('admin@foundloop.in', 'Admin@123')}
-            className="rounded border border-border-subtle bg-surface px-2.5 py-1 text-xs font-medium text-text-primary hover:bg-border-subtle transition-colors"
-          >
-            Admin (admin@foundloop.in)
-          </button>
-        </div>
-      </div>
 
       {/* Footer Link */}
       <div className="border-t border-border-subtle pt-4 text-center text-xs text-text-secondary">

@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  ShieldAlert, 
-  Users, 
-  FileText, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Trash2, 
-  Ban, 
+import {
+  ShieldAlert,
+  Users,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+  Trash2,
+  Ban,
   CheckCircle,
   Clock,
   ArrowRight
@@ -154,31 +154,28 @@ export default function AdminConsolePage() {
         <div className="flex border-b border-border-subtle text-xs font-semibold gap-6 pb-2">
           <button
             onClick={() => setActiveTab('CLAIMS')}
-            className={`pb-2 border-b-2 transition-colors ${
-              activeTab === 'CLAIMS'
+            className={`pb-2 border-b-2 transition-colors ${activeTab === 'CLAIMS'
                 ? 'border-accent text-accent font-bold'
                 : 'border-transparent text-text-secondary hover:text-text-primary'
-            }`}
+              }`}
           >
             Pending Claims Review ({pendingClaims.length})
           </button>
           <button
             onClick={() => setActiveTab('FLAGS')}
-            className={`pb-2 border-b-2 transition-colors ${
-              activeTab === 'FLAGS'
+            className={`pb-2 border-b-2 transition-colors ${activeTab === 'FLAGS'
                 ? 'border-accent text-accent font-bold'
                 : 'border-transparent text-text-secondary hover:text-text-primary'
-            }`}
+              }`}
           >
             Flagged Listings & Content ({flaggedItems.length})
           </button>
           <button
             onClick={() => setActiveTab('USERS')}
-            className={`pb-2 border-b-2 transition-colors ${
-              activeTab === 'USERS'
+            className={`pb-2 border-b-2 transition-colors ${activeTab === 'USERS'
                 ? 'border-accent text-accent font-bold'
                 : 'border-transparent text-text-secondary hover:text-text-primary'
-            }`}
+              }`}
           >
             Community Governance Rules
           </button>
