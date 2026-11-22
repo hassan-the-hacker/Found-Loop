@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { UploadCloud, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { UploadCloud, X, Image as ImageIcon, Loader2, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface ImageUploadProps {
@@ -57,6 +57,7 @@ export default function ImageUpload({
             0.82
           );
         };
+        img.onerror = () => reject(new Error('Failed to load image for compression'));
       };
       reader.onerror = (e) => reject(e);
     });
@@ -69,7 +70,7 @@ export default function ImageUpload({
     setError(null);
 
     // Validate MIME
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type.toLowerCase())) {
       setError('Please upload a valid JPG, PNG, or WebP image.');
       return;
     }
@@ -83,41 +84,55 @@ export default function ImageUpload({
     setUploading(true);
 
     try {
-      // Client-side compression
+      // 1. Client-side WebP compression (max 1200px, 82% quality)
       const compressedBlob = await compressImage(file);
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.webp`;
-      const filePath = `items/${fileName}`;
 
-      const { data, error: uploadError } = await supabase.storage
-        .from('item-images')
-        .upload(filePath, compressedBlob, {
-          contentType: 'image/webp',
-          upsert: true,
-        });
-
-      if (uploadError) {
-        // Fallback: If storage bucket is not configured, create a local preview data URL
+      // 2. Generate Base64 Data URL for guaranteed immediate display
+      const base64DataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(compressedBlob);
         reader.onloadend = () => {
-          onChange(reader.result as string);
+          if (typeof reader.result === 'string') resolve(reader.result);
+          else reject(new Error('Failed to read image as Data URL'));
         };
-        return;
-      }
+        reader.onerror = reject;
+        reader.readAsDataURL(compressedBlob);
+      });
 
-      if (data) {
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('item-images').getPublicUrl(filePath);
-        onChange(publicUrl);
+      // Set immediate local preview
+      onChange(base64DataUrl);
+
+      // 3. If cloud Supabase Storage is configured, also upload to bucket
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const isCloud = supabaseUrl && !supabaseUrl.includes('placeholder') && !supabaseUrl.includes('localhost');
+
+      if (isCloud) {
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.webp`;
+        const filePath = `items/${fileName}`;
+
+        const { data, error: uploadError } = await supabase.storage
+          .from('item-images')
+          .upload(filePath, compressedBlob, {
+            contentType: 'image/webp',
+            upsert: true,
+          });
+
+        if (!uploadError && data) {
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('item-images').getPublicUrl(filePath);
+          onChange(publicUrl);
+        }
       }
-    } catch {
-      // Offline fallback: data URL
+    } catch (err: any) {
+      console.warn('Compression fallback used:', err);
+      // Fallback: read raw file as data URL
       const reader = new FileReader();
-      reader.readAsDataURL(file);
       reader.onloadend = () => {
-        onChange(reader.result as string);
+        if (typeof reader.result === 'string') {
+          onChange(reader.result);
+        }
       };
+      reader.readAsDataURL(file);
     } finally {
       setUploading(false);
     }
@@ -133,22 +148,31 @@ export default function ImageUpload({
       <label className="block text-xs font-semibold text-text-primary">{label}</label>
 
       {value ? (
-        <div className="relative inline-block overflow-hidden rounded-md border border-border-subtle bg-surface">
+        <div className="relative inline-block overflow-hidden rounded-lg border border-border-subtle bg-surface shadow-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="Preview" className="h-44 w-64 object-cover" />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute right-2 top-2 rounded-full bg-black/70 p-1 text-white hover:bg-black"
-            title="Remove Photo"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <img
+            src={value}
+            alt="Item preview"
+            className="h-48 w-72 object-cover"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 flex items-center justify-between">
+            <span className="text-[11px] font-medium text-white flex items-center gap-1.5 drop-shadow-sm">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Photo ready
+            </span>
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="rounded-full bg-black/70 p-1 text-white hover:bg-red-600 transition-colors shadow-sm"
+              title="Remove Photo"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       ) : (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-[#D1D5DB] bg-surface-subtle/50 px-6 py-6 text-center transition-colors hover:border-accent hover:bg-accent/5"
+          className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#D1D5DB] bg-surface-subtle/50 px-6 py-6 text-center transition-colors hover:border-accent hover:bg-accent/5"
         >
           {uploading ? (
             <Loader2 className="h-8 w-8 animate-spin text-accent" />
@@ -156,13 +180,13 @@ export default function ImageUpload({
             <UploadCloud className="h-8 w-8 text-text-muted" />
           )}
           <span className="mt-2 text-xs font-medium text-text-primary">
-            {uploading ? 'Compressing & uploading...' : 'Click or drop photo here'}
+            {uploading ? 'Processing & preparing preview...' : 'Click or drop photo here'}
           </span>
           <span className="mt-0.5 text-[11px] text-text-muted">JPG, PNG, or WebP up to 5MB</span>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/jpg"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -174,4 +198,3 @@ export default function ImageUpload({
     </div>
   );
 }
-
