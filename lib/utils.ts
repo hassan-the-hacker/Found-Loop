@@ -29,12 +29,15 @@ export function formatRelativeTime(dateString: string | Date): string {
 }
 
 export function getStatusBadge(status: string) {
-  switch (status) {
+  const s = (status || "").toUpperCase().trim();
+  switch (s) {
     case "REPORTED":
       return { label: "Reported", bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200" };
     case "AVAILABLE":
       return { label: "Available", bg: "bg-sky-50", text: "text-sky-800", border: "border-sky-200" };
     case "MATCH_PENDING":
+      return { label: "Potential Match", bg: "bg-purple-50", text: "text-purple-800", border: "border-purple-200" };
+    case "SUBMITTED":
     case "CLAIM_UNDER_REVIEW":
     case "UNDER_REVIEW":
       return { label: "Under Review", bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200" };

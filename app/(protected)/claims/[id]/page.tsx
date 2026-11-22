@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -15,7 +15,8 @@ import {
   AlertCircle, 
   MessageSquare,
   Building,
-  User
+  User,
+  Loader2
 } from 'lucide-react';
 import { OwnershipClaim, FoundItem } from '@/types/app';
 
@@ -30,52 +31,59 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
   const [userRole, setUserRole] = useState<'user' | 'moderator' | 'admin'>('user');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [activeAction, setActiveAction] = useState<'APPROVED' | 'REJECTED' | 'HANDED_OVER' | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackType, setFeedbackType] = useState<'success' | 'error' | null>(null);
+
+  const loadClaimData = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUser(user);
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        const pData = profile as { role?: 'user' | 'moderator' | 'admin' } | null;
+        if (pData?.role) setUserRole(pData.role);
+      }
+
+      const { data: claimData } = await supabase
+        .from('ownership_claims')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      const c = claimData as OwnershipClaim | null;
+      if (c) {
+        setClaim(c);
+        if (c.review_notes) {
+          setReviewNotes(c.review_notes);
+        }
+        const { data: itemData } = await supabase
+          .from('found_items')
+          .select('*')
+          .eq('id', c.found_item_id)
+          .single();
+        if (itemData) setFoundItem(itemData as FoundItem);
+      }
+    } catch {
+      // Fallback for demo mode
+    } finally {
+      setLoading(false);
+    }
+  }, [id, supabase]);
 
   useEffect(() => {
-    async function loadClaimData() {
-      setLoading(true);
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setCurrentUser(user);
-          const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-          const pData = profile as { role?: 'user' | 'moderator' | 'admin' } | null;
-          if (pData?.role) setUserRole(pData.role);
-        }
-
-        const { data: claimData } = await supabase
-          .from('ownership_claims')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        const c = claimData as OwnershipClaim | null;
-        if (c) {
-          setClaim(c);
-          const { data: itemData } = await supabase
-            .from('found_items')
-            .select('*')
-            .eq('id', c.found_item_id)
-            .single();
-          if (itemData) setFoundItem(itemData as FoundItem);
-        }
-      } catch {
-        // Fallback for demo mode
-      } finally {
-        setLoading(false);
-      }
-    }
     loadClaimData();
-  }, [id, supabase]);
+  }, [loadClaimData]);
 
   const handleUpdateStatus = async (newStatus: 'APPROVED' | 'REJECTED' | 'HANDED_OVER') => {
     setActionLoading(true);
+    setActiveAction(newStatus);
     setFeedbackMessage(null);
+    setFeedbackType(null);
 
     try {
-      // 1. Update claim status
+      // 1. Update claim status in database
       const { error: claimErr } = await (supabase
         .from('ownership_claims') as any)
         .update({
@@ -88,28 +96,61 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
 
       if (claimErr) throw new Error(claimErr.message);
 
-      // 2. Update found item status
-      if (foundItem) {
-        const itemNewStatus =
-          newStatus === 'APPROVED'
-            ? 'OWNERSHIP_VERIFIED'
-            : newStatus === 'HANDED_OVER'
-            ? 'RETURNED'
-            : 'AVAILABLE';
+      // 2. Update found item status in database
+      const itemNewStatus: FoundItem['status'] =
+        newStatus === 'APPROVED'
+          ? 'OWNERSHIP_VERIFIED'
+          : newStatus === 'HANDED_OVER'
+          ? 'RETURNED'
+          : 'AVAILABLE';
 
+      if (foundItem) {
         await (supabase
           .from('found_items') as any)
-          .update({ status: itemNewStatus })
+          .update({
+            status: itemNewStatus,
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', foundItem.id);
       }
 
-      setFeedbackMessage(`Claim successfully marked as ${newStatus}.`);
+      // 3. Immediately update local React state for instantaneous UI transition!
+      setClaim((prev) => {
+        const base = prev || activeClaim;
+        return {
+          ...base,
+          status: newStatus,
+          review_notes: reviewNotes.trim() || null,
+          reviewer_id: currentUser?.id || null,
+          updated_at: new Date().toISOString(),
+        } as OwnershipClaim;
+      });
+
+      if (foundItem) {
+        setFoundItem((prev) => prev ? {
+          ...prev,
+          status: itemNewStatus,
+          updated_at: new Date().toISOString(),
+        } : null);
+      }
+
+      const successTexts: Record<string, string> = {
+        APPROVED: 'Claim successfully approved! Ownership has been verified. Safe handover is now authorized.',
+        REJECTED: 'Claim has been rejected. Item remains listed for legitimate recovery.',
+        HANDED_OVER: 'Handover complete! Item marked as successfully returned and case closed.',
+      };
+      setFeedbackMessage(successTexts[newStatus] || `Claim successfully updated to ${newStatus}.`);
+      setFeedbackType('success');
+
       router.refresh();
+      await loadClaimData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Action failed';
+      const msg = err instanceof Error ? err.message : 'Action failed. Please try again.';
       setFeedbackMessage(msg);
+      setFeedbackType('error');
     } finally {
       setActionLoading(false);
+      setActiveAction(null);
     }
   };
 
@@ -175,8 +216,16 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
       </div>
 
       {feedbackMessage && (
-        <div className="flex items-center gap-2 rounded-md border border-accent/20 bg-accent/5 p-4 text-xs text-accent">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className={`flex items-center gap-2 rounded-md p-4 text-xs font-medium ${
+          feedbackType === 'error'
+            ? 'border border-red-300 bg-red-50 text-red-900'
+            : 'border border-emerald-300 bg-emerald-50 text-emerald-950'
+        }`}>
+          {feedbackType === 'error' ? (
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+          ) : (
+            <CheckCircle className="h-4 w-4 shrink-0 text-status-verified" />
+          )}
           <span>{feedbackMessage}</span>
         </div>
       )}
@@ -253,11 +302,20 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
 
           {/* Handover & Action Section */}
           {activeClaim.status === 'APPROVED' ? (
-            <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50/50 p-6 space-y-4">
+            <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50/50 p-6 space-y-4 shadow-sm animate-in fade-in duration-300">
               <div className="flex items-center gap-2 text-emerald-950 font-bold text-sm">
                 <CheckCircle className="h-5 w-5 text-status-verified" />
                 <span>Ownership Verified! Safe Handover Authorized</span>
               </div>
+
+              {activeClaim.review_notes && (
+                <div className="rounded-md border border-emerald-200 bg-white p-3.5 text-xs text-emerald-950 space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block">
+                    Reviewer Notes / Feedback:
+                  </span>
+                  <p className="text-text-primary italic">&quot;{activeClaim.review_notes}&quot;</p>
+                </div>
+              )}
 
               <div className="rounded-md border border-emerald-200 bg-white p-4 text-xs space-y-2 text-emerald-950">
                 <p className="font-semibold flex items-center gap-1.5">
@@ -267,7 +325,7 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
                 <ol className="list-decimal list-inside space-y-1 text-[11px] text-text-secondary leading-relaxed">
                   <li>Meet at a designated public location (Campus Security Desk, Station Master office, or Police Station).</li>
                   <li>Verify physical identity (College ID or Government Card) in person.</li>
-                  <li>Confirm receipt and click &quot;Confirm Handover Complete&quot; below to close the report.</li>
+                  <li>Confirm physical handover and click &quot;Confirm Handover Complete&quot; below to close the report.</li>
                 </ol>
               </div>
 
@@ -275,14 +333,24 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
                 <button
                   onClick={() => handleUpdateStatus('HANDED_OVER')}
                   disabled={actionLoading}
-                  className="rounded-md bg-status-verified px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-md bg-status-verified px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-60 transition-all cursor-pointer"
                 >
-                  Confirm Handover Complete (Close Report)
+                  {actionLoading && activeAction === 'HANDED_OVER' ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Closing Report & Returning Item...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Confirm Handover Complete (Close Report)</span>
+                    </>
+                  )}
                 </button>
               )}
             </div>
           ) : activeClaim.status === 'REJECTED' ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-xs text-red-950 space-y-2">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-xs text-red-950 space-y-2 shadow-sm animate-in fade-in duration-300">
               <div className="flex items-center gap-2 font-bold text-status-lost">
                 <XCircle className="h-4 w-4" />
                 <span>Claim Rejected</span>
@@ -290,14 +358,26 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
               <p className="text-[11px] text-red-900/80 leading-relaxed">
                 The provided proof details did not match the physical item. The item remains listed for genuine recovery.
               </p>
+              {activeClaim.review_notes && (
+                <div className="rounded-md border border-red-200 bg-white p-3 text-xs text-text-primary mt-2">
+                  <span className="font-bold text-[11px] text-red-800 block">Review Feedback:</span>
+                  <p className="italic text-text-secondary mt-0.5">&quot;{activeClaim.review_notes}&quot;</p>
+                </div>
+              )}
             </div>
           ) : activeClaim.status === 'HANDED_OVER' ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-6 text-xs text-emerald-950 space-y-1 text-center">
-              <CheckCircle className="h-8 w-8 text-status-verified mx-auto mb-2" />
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-6 text-xs text-emerald-950 space-y-2 text-center shadow-sm animate-in fade-in duration-300">
+              <CheckCircle className="h-9 w-9 text-status-verified mx-auto mb-1" />
               <h4 className="text-base font-bold text-emerald-950">Item Successfully Returned!</h4>
               <p className="text-text-secondary text-xs">
                 Case closed. Thank you for making your community safer and more helpful.
               </p>
+              {activeClaim.review_notes && (
+                <div className="mx-auto max-w-md rounded-md border border-emerald-200 bg-white p-3 text-xs text-text-primary text-left mt-3">
+                  <span className="font-bold text-[11px] text-emerald-800 block">Verification Note:</span>
+                  <p className="italic text-text-secondary mt-0.5">&quot;{activeClaim.review_notes}&quot;</p>
+                </div>
+              )}
             </div>
           ) : (
             canReview && (
@@ -324,19 +404,37 @@ export default function ClaimStatusPage({ params }: { params: { id: string } }) 
                   <button
                     onClick={() => handleUpdateStatus('APPROVED')}
                     disabled={actionLoading}
-                    className="flex items-center gap-1.5 rounded-md bg-status-verified px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
+                    className="flex items-center gap-2 rounded-md bg-status-verified px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-60 transition-all cursor-pointer"
                   >
-                    <CheckCircle className="h-4 w-4" />
-                    Approve Claim (Verify Ownership)
+                    {actionLoading && activeAction === 'APPROVED' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Verifying & Approving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Approve Claim (Verify Ownership)</span>
+                      </>
+                    )}
                   </button>
 
                   <button
                     onClick={() => handleUpdateStatus('REJECTED')}
                     disabled={actionLoading}
-                    className="flex items-center gap-1.5 rounded-md border border-status-lost/30 bg-status-lost-bg px-4 py-2.5 text-xs font-semibold text-status-lost hover:bg-status-lost hover:text-white transition-colors disabled:opacity-60"
+                    className="flex items-center gap-2 rounded-md border border-status-lost/30 bg-status-lost-bg px-4 py-2.5 text-xs font-semibold text-status-lost hover:bg-status-lost hover:text-white transition-colors disabled:opacity-60 cursor-pointer"
                   >
-                    <XCircle className="h-4 w-4" />
-                    Reject (Insufficient Proof)
+                    {actionLoading && activeAction === 'REJECTED' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Rejecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4" />
+                        <span>Reject (Insufficient Proof)</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

@@ -25,15 +25,16 @@ const STEPS = [
 
 export default function RecoveryTimeline({ currentStatus }: RecoveryTimelineProps) {
   const getStepIndex = (status: string) => {
-    switch (status) {
+    const s = (status || '').toUpperCase().trim();
+    switch (s) {
       case 'REPORTED':
       case 'AVAILABLE':
         return 0;
       case 'MATCH_PENDING':
         return 1;
       case 'CLAIM_SUBMITTED':
-      case 'SUBMITTED':
         return 2;
+      case 'SUBMITTED':
       case 'UNDER_REVIEW':
       case 'CLAIM_UNDER_REVIEW':
         return 3;

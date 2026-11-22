@@ -128,11 +128,10 @@ export default async function DashboardPage() {
           <span className="text-[11px] text-text-muted">Items in custody</span>
         </div>
 
-        <div className={`rounded-lg border p-4 shadow-sm transition-colors ${
-          pendingIncomingClaims.length > 0
+        <div className={`rounded-lg border p-4 shadow-sm transition-colors ${pendingIncomingClaims.length > 0
             ? 'border-amber-300 bg-amber-50/70 ring-1 ring-amber-300'
             : 'border-border-subtle bg-surface'
-        }`}>
+          }`}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-text-secondary">Incoming Claims</span>
             {pendingIncomingClaims.length > 0 && (
@@ -244,11 +243,10 @@ export default async function DashboardPage() {
                     <div className="flex items-center gap-2 shrink-0">
                       <Link
                         href={`/claims/${claim.id}`}
-                        className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-xs font-semibold shadow-xs transition-colors ${
-                          isPending
+                        className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-xs font-semibold shadow-xs transition-colors ${isPending
                             ? 'bg-accent text-white hover:bg-accent-hover'
                             : 'bg-surface-subtle border border-border-subtle text-text-primary hover:bg-border-subtle'
-                        }`}
+                          }`}
                       >
                         {isPending ? 'Review Claim & Proof →' : 'View Decision Docket →'}
                       </Link>
