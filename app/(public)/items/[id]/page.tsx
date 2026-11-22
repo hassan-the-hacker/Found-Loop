@@ -60,33 +60,8 @@ export default async function ItemDetailsPage({ params, searchParams }: PageProp
     }
   }
 
-  // Fallback demo mock if database record not yet committed
   if (!item) {
-    if (id.startsWith('demo-')) {
-      item = {
-        id,
-        user_id: 'mock-user',
-        title: 'College ID Card & Metro Pass',
-        category: 'Documents',
-        description: 'Lost near the college library entrance. Has a blue lanyard with an RFID metro tag.',
-        brand: 'Mumbai Metro / VJTI',
-        primary_color: 'Blue',
-        secondary_color: 'White',
-        lost_date: '2026-11-20',
-        city: 'Mumbai',
-        approximate_location: 'Near VJTI Library / Matunga Station',
-        latitude: null,
-        longitude: null,
-        image_url: null,
-        private_identifying_details: 'Mock private details',
-        status: 'REPORTED',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } as LostItem;
-      isLost = true;
-    } else {
-      notFound();
-    }
+    notFound();
   }
 
   const badge = getStatusBadge(item.status);

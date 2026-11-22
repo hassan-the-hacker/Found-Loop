@@ -28,92 +28,28 @@ export default async function HomePage() {
       supabase
         .from('lost_items')
         .select('*')
-        .eq('status', 'REPORTED')
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(6),
       supabase
         .from('found_items')
         .select('*')
-        .eq('status', 'AVAILABLE')
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(6),
     ]);
 
-    if (lostRes.data) recentLost = lostRes.data as unknown as LostItem[];
-    if (foundRes.data) recentFound = foundRes.data as unknown as FoundItem[];
+    if (lostRes.data && Array.isArray(lostRes.data)) {
+      recentLost = (lostRes.data as unknown as LostItem[]).filter(
+        (i) => i.status !== 'CLOSED' && i.status !== 'RETURNED'
+      );
+    }
+    if (foundRes.data && Array.isArray(foundRes.data)) {
+      recentFound = (foundRes.data as unknown as FoundItem[]).filter(
+        (i) => i.status !== 'CLOSED'
+      );
+    }
   } catch {
     // Graceful fallback for local offline demo
   }
-
-  // Fallback demo data if database is empty/fresh
-  const sampleLost = recentLost.length > 0 ? recentLost : [
-    {
-      id: 'demo-1',
-      title: 'College ID Card & Metro Pass',
-      category: 'Documents',
-      city: 'Mumbai',
-      approximate_location: 'Near VJTI Library / Matunga Station',
-      lost_date: '2026-11-20',
-      primary_color: 'Blue',
-      status: 'REPORTED',
-    },
-    {
-      id: 'demo-2',
-      title: 'Titan Fastrack Black Watch',
-      category: 'Accessories',
-      city: 'Delhi NCR',
-      approximate_location: 'Rajiv Chowk Metro Gate 3',
-      lost_date: '2026-11-21',
-      primary_color: 'Black',
-      status: 'REPORTED',
-    },
-    {
-      id: 'demo-3',
-      title: 'Dark Brown Leather Wallet',
-      category: 'Wallets',
-      city: 'Bengaluru',
-      approximate_location: 'Koramangala 4th Block Bus Stop',
-      lost_date: '2026-11-21',
-      primary_color: 'Brown',
-      status: 'REPORTED',
-    },
-  ];
-
-  const sampleFound = recentFound.length > 0 ? recentFound : [
-    {
-      id: 'demo-4',
-      title: 'HP Laptop Charger (Type-C)',
-      category: 'Electronics',
-      city: 'Pune',
-      approximate_location: 'Shivajinagar Railway Station Waiting Hall',
-      found_date: '2026-11-21',
-      primary_color: 'Black',
-      status: 'AVAILABLE',
-      custody_type: 'SECURITY_DESK',
-    },
-    {
-      id: 'demo-5',
-      title: 'Set of 3 Keys with Wooden Keychain',
-      category: 'Keys',
-      city: 'Mumbai',
-      approximate_location: 'Marine Drive Promenade bench near Nariman Pt',
-      found_date: '2026-11-22',
-      primary_color: 'Silver',
-      status: 'AVAILABLE',
-      custody_type: 'WITH_FINDER',
-    },
-    {
-      id: 'demo-6',
-      title: 'Boat Airdopes Earphone Case',
-      category: 'Electronics',
-      city: 'Hyderabad',
-      approximate_location: 'Hitec City Metro Station Concourse',
-      found_date: '2026-11-22',
-      primary_color: 'White',
-      status: 'AVAILABLE',
-      custody_type: 'LOST_AND_FOUND_OFFICE',
-    },
-  ];
 
   return (
     <div className="space-y-16 pb-20">
@@ -244,45 +180,58 @@ export default async function HomePage() {
               <span className="text-xs text-text-muted">Seeking Recovery</span>
             </div>
 
-            <div className="space-y-3">
-              {sampleLost.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-lg border border-border-subtle bg-surface p-4 transition-all hover:border-border-focus/40"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded bg-status-lost-bg px-2 py-0.5 text-[11px] font-semibold text-status-lost">
-                          LOST
-                        </span>
-                        <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-text-secondary">
-                          {item.category}
-                        </span>
+            {recentLost.length > 0 ? (
+              <div className="space-y-3">
+                {recentLost.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border border-border-subtle bg-surface p-4 transition-all hover:border-border-focus/40"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-status-lost-bg px-2 py-0.5 text-[11px] font-semibold text-status-lost">
+                            LOST
+                          </span>
+                          <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-text-secondary">
+                            {item.category}
+                          </span>
+                        </div>
+                        <Link href={`/items/${item.id}?type=LOST`}>
+                          <h4 className="mt-2 text-sm font-semibold text-text-primary hover:text-accent transition-colors">
+                            {item.title}
+                          </h4>
+                        </Link>
                       </div>
-                      <h4 className="mt-2 text-sm font-semibold text-text-primary">{item.title}</h4>
+                      <span className="flex items-center gap-1 text-[11px] text-text-muted shrink-0">
+                        <Clock className="h-3 w-3" />
+                        {formatDate(item.lost_date || item.created_at)}
+                      </span>
                     </div>
-                    <span className="flex items-center gap-1 text-[11px] text-text-muted shrink-0">
-                      <Clock className="h-3 w-3" />
-                      {formatDate(item.lost_date)}
-                    </span>
-                  </div>
 
-                  <div className="mt-3 flex items-center justify-between text-xs text-text-secondary">
-                    <span className="flex items-center gap-1 text-text-muted">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
-                      {item.approximate_location}, {item.city}
-                    </span>
-                    <Link
-                      href={`/browse?q=${encodeURIComponent(item.title)}`}
-                      className="font-medium text-accent hover:underline"
-                    >
-                      Check Matches →
-                    </Link>
+                    <div className="mt-3 flex items-center justify-between text-xs text-text-secondary">
+                      <span className="flex items-center gap-1 text-text-muted">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {item.approximate_location ? `${item.approximate_location}, ${item.city}` : item.city}
+                      </span>
+                      <Link
+                        href={`/items/${item.id}?type=LOST`}
+                        className="font-medium text-accent hover:underline"
+                      >
+                        Check Matches →
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border-subtle bg-surface/50 p-6 text-center text-xs text-text-muted space-y-2">
+                <p className="font-medium text-text-secondary">No lost items seeking recovery right now.</p>
+                <Link href="/report/lost" className="inline-block text-accent font-semibold hover:underline">
+                  Report a Lost Item →
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Recently Found */}
@@ -295,45 +244,58 @@ export default async function HomePage() {
               <span className="text-xs text-text-muted">In Safe Keeping</span>
             </div>
 
-            <div className="space-y-3">
-              {sampleFound.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-lg border border-border-subtle bg-surface p-4 transition-all hover:border-border-focus/40"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded bg-status-found-bg px-2 py-0.5 text-[11px] font-semibold text-status-found">
-                          FOUND
-                        </span>
-                        <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-text-secondary">
-                          {item.category}
-                        </span>
+            {recentFound.length > 0 ? (
+              <div className="space-y-3">
+                {recentFound.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border border-border-subtle bg-surface p-4 transition-all hover:border-border-focus/40"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-status-found-bg px-2 py-0.5 text-[11px] font-semibold text-status-found">
+                            FOUND
+                          </span>
+                          <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-text-secondary">
+                            {item.category}
+                          </span>
+                        </div>
+                        <Link href={`/items/${item.id}?type=FOUND`}>
+                          <h4 className="mt-2 text-sm font-semibold text-text-primary hover:text-accent transition-colors">
+                            {item.title}
+                          </h4>
+                        </Link>
                       </div>
-                      <h4 className="mt-2 text-sm font-semibold text-text-primary">{item.title}</h4>
+                      <span className="flex items-center gap-1 text-[11px] text-text-muted shrink-0">
+                        <Clock className="h-3 w-3" />
+                        {formatDate(item.found_date || item.created_at)}
+                      </span>
                     </div>
-                    <span className="flex items-center gap-1 text-[11px] text-text-muted shrink-0">
-                      <Clock className="h-3 w-3" />
-                      {formatDate(item.found_date)}
-                    </span>
-                  </div>
 
-                  <div className="mt-3 flex items-center justify-between text-xs text-text-secondary">
-                    <span className="flex items-center gap-1 text-text-muted">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
-                      {item.approximate_location}, {item.city}
-                    </span>
-                    <Link
-                      href="/browse?type=FOUND"
-                      className="font-medium text-accent hover:underline"
-                    >
-                      Claim Item →
-                    </Link>
+                    <div className="mt-3 flex items-center justify-between text-xs text-text-secondary">
+                      <span className="flex items-center gap-1 text-text-muted">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {item.approximate_location ? `${item.approximate_location}, ${item.city}` : item.city}
+                      </span>
+                      <Link
+                        href={`/items/${item.id}?type=FOUND`}
+                        className="font-medium text-accent hover:underline"
+                      >
+                        Claim Item →
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border-subtle bg-surface/50 p-6 text-center text-xs text-text-muted space-y-2">
+                <p className="font-medium text-text-secondary">No found belongings awaiting claim right now.</p>
+                <Link href="/report/found" className="inline-block text-accent font-semibold hover:underline">
+                  Report a Found Belonging →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
