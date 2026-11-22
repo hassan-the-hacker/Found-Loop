@@ -40,8 +40,11 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const redirectOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-      const emailRedirectTo = redirectOrigin ? `${redirectOrigin}/api/auth/callback` : undefined;
+      const redirectOrigin =
+        typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
+          ? window.location.origin
+          : 'https://found-loop-h9fu.vercel.app';
+      const emailRedirectTo = `${redirectOrigin}/api/auth/callback?next=/login`;
 
       const { data, error: authError } = await supabase.auth.signUp({
         email,

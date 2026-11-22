@@ -4,12 +4,13 @@ import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Search, AlertCircle, ArrowRight, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Search, AlertCircle, ArrowRight, Lock, Mail, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  const isConfirmed = searchParams.get('confirmed') === 'true';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -93,6 +94,13 @@ function LoginForm() {
           Sign in to manage your reports and track ownership claims.
         </p>
       </div>
+
+      {isConfirmed && (
+        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          <span>Email confirmed successfully! Please sign in with your email and password.</span>
+        </div>
+      )}
 
       {redirectTo.includes('/report/lost') && (
         <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-800">

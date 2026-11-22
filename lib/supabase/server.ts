@@ -149,6 +149,9 @@ function createLocalServerClient(): any {
       async getUser() {
         return { data: { user: currentUser }, error: null };
       },
+      async exchangeCodeForSession(_code: string) {
+        return { data: { user: currentUser, session: null }, error: null };
+      },
       async signOut() {
         try {
           cookieStore.delete('foundloop_session');

@@ -165,7 +165,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- 2. Create Lost Items Table
-CREATE TABLE public.lost_items (
+CREATE TABLE IF NOT EXISTS public.lost_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -175,11 +175,13 @@ CREATE TABLE public.lost_items (
   primary_color TEXT NOT NULL,
   secondary_color TEXT,
   lost_date DATE NOT NULL,
+  state TEXT,
   city TEXT NOT NULL,
   approximate_location TEXT NOT NULL,
   latitude NUMERIC(10, 7),
   longitude NUMERIC(10, 7),
   image_url TEXT,
+  additional_images TEXT[],
   private_identifying_details TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'REPORTED' CHECK (status IN ('REPORTED', 'MATCH_PENDING', 'CLAIM_SUBMITTED', 'VERIFIED', 'RETURNED', 'CLOSED')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -187,7 +189,7 @@ CREATE TABLE public.lost_items (
 );
 
 -- 3. Create Found Items Table
-CREATE TABLE public.found_items (
+CREATE TABLE IF NOT EXISTS public.found_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -197,11 +199,13 @@ CREATE TABLE public.found_items (
   primary_color TEXT NOT NULL,
   secondary_color TEXT,
   found_date DATE NOT NULL,
+  state TEXT,
   city TEXT NOT NULL,
   approximate_location TEXT NOT NULL,
   latitude NUMERIC(10, 7),
   longitude NUMERIC(10, 7),
   image_url TEXT,
+  additional_images TEXT[],
   custody_type TEXT NOT NULL DEFAULT 'WITH_FINDER' CHECK (custody_type IN ('WITH_FINDER', 'POLICE_STATION', 'SECURITY_DESK', 'LOST_AND_FOUND_OFFICE')),
   custody_details TEXT,
   status TEXT NOT NULL DEFAULT 'AVAILABLE' CHECK (status IN ('AVAILABLE', 'CLAIM_UNDER_REVIEW', 'OWNERSHIP_VERIFIED', 'RETURNED', 'CLOSED')),
@@ -224,7 +228,7 @@ CREATE TABLE public.potential_matches (
 );
 
 -- 5. Ownership Claims Table
-CREATE TABLE public.ownership_claims (
+CREATE TABLE IF NOT EXISTS public.ownership_claims (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   found_item_id UUID NOT NULL REFERENCES public.found_items(id) ON DELETE CASCADE,
   lost_item_id UUID REFERENCES public.lost_items(id) ON DELETE SET NULL,
@@ -235,6 +239,8 @@ CREATE TABLE public.ownership_claims (
   status TEXT NOT NULL DEFAULT 'SUBMITTED' CHECK (status IN ('SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'HANDED_OVER')),
   reviewer_id UUID REFERENCES public.profiles(id),
   review_notes TEXT,
+  handover_location TEXT,
+  handover_contact TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

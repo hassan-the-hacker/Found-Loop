@@ -104,7 +104,10 @@ export default function ReportFoundPage() {
         router.push('/dashboard');
       }, 1500);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to submit report';
+      let msg = err instanceof Error ? err.message : 'Failed to submit report';
+      if (msg.includes('schema cache') || msg.includes('found_items')) {
+        msg = 'Database tables have not been created in Supabase yet. Please execute the SQL script in your Supabase Dashboard > SQL Editor to initialize all tables.';
+      }
       setError(msg);
     } finally {
       setLoading(false);

@@ -8,11 +8,16 @@ export async function updateSession(request: NextRequest) {
   // If Supabase redirected to /?code=... instead of /api/auth/callback, intercept and exchange code
   const authCode = request.nextUrl.searchParams.get('code');
   if (authCode && !request.nextUrl.pathname.startsWith('/api/auth/callback')) {
+    if (request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1') {
+      const liveTarget = new URL('https://found-loop-h9fu.vercel.app/api/auth/callback');
+      liveTarget.searchParams.set('code', authCode);
+      liveTarget.searchParams.set('next', '/login');
+      return NextResponse.redirect(liveTarget);
+    }
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = '/api/auth/callback';
     callbackUrl.searchParams.set('code', authCode);
-    const destination = request.nextUrl.pathname === '/' ? '/dashboard' : request.nextUrl.pathname;
-    callbackUrl.searchParams.set('next', destination);
+    callbackUrl.searchParams.set('next', '/login');
     return NextResponse.redirect(callbackUrl);
   }
 
