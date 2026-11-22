@@ -39,7 +39,7 @@ export default function Navbar() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
-    } catch {}
+    } catch { }
     if (typeof document !== 'undefined') {
       document.cookie = 'foundloop_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     }
@@ -48,6 +48,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Browse Items', href: '/browse' },
+    { name: 'Dashboard', href: '/dashboard' },
     { name: 'How It Works', href: '/how-it-works' },
     { name: 'Safety', href: '/safety' },
   ];
@@ -74,9 +75,8 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors ${
-                  isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text-primary'
-                }`}
+                className={`text-sm font-medium transition-colors ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text-primary'
+                  }`}
               >
                 {link.name}
               </Link>

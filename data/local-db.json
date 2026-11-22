@@ -1,6 +1,20 @@
 {
   "profiles": [
     {
+      "id": "usr_hazyy",
+      "email": "hazyy@yopmail.com",
+      "full_name": "hazyy",
+      "role": "user",
+      "created_at": "2026-11-22T09:48:00.000Z"
+    },
+    {
+      "id": "usr_los_fou",
+      "email": "los-fou@yopmail.com",
+      "full_name": "hazyyy",
+      "role": "user",
+      "created_at": "2026-11-22T09:48:00.000Z"
+    },
+    {
       "id": "usr_demo_admin",
       "email": "admin@foundloop.in",
       "full_name": "FoundLoop Admin",
@@ -170,6 +184,26 @@
   "ownership_claims": [],
   "reports_and_flags": [],
   "registered_users": [
+    {
+      "id": "usr_hazyy",
+      "email": "hazyy@yopmail.com",
+      "password": "password123",
+      "user_metadata": {
+        "full_name": "hazyy"
+      },
+      "role": "authenticated",
+      "created_at": "2026-11-22T09:48:00.000Z"
+    },
+    {
+      "id": "usr_los_fou",
+      "email": "los-fou@yopmail.com",
+      "password": "password123",
+      "user_metadata": {
+        "full_name": "hazyyy"
+      },
+      "role": "authenticated",
+      "created_at": "2026-11-22T09:48:00.000Z"
+    },
     {
       "id": "usr_demo_admin",
       "email": "admin@foundloop.in",

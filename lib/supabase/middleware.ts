@@ -7,6 +7,22 @@ function isPlaceholder(url?: string): boolean {
   return url.includes('placeholder') || url.includes('example.com') || url.includes('localhost');
 }
 
+export function safeParseUser(raw?: string): any {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    const parsed = JSON.parse(decoded);
+    return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+  } catch {
+    try {
+      const parsed = JSON.parse(raw);
+      return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -21,15 +37,7 @@ export async function updateSession(request: NextRequest) {
   // Handle local demo mode when placeholder URL is present
   if (isPlaceholder(supabaseUrl) || !supabaseKey || supabaseKey.includes('placeholder')) {
     const sessionCookie = request.cookies.get('foundloop_session')?.value;
-    let user: any = null;
-
-    if (sessionCookie) {
-      try {
-        user = JSON.parse(decodeURIComponent(sessionCookie));
-      } catch {
-        user = null;
-      }
-    }
+    const user = safeParseUser(sessionCookie);
 
     if (!user && (isProtectedPath || isAdminPath)) {
       const url = request.nextUrl.clone();

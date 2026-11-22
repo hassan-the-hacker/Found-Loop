@@ -6,15 +6,34 @@ function isPlaceholder(url?: string): boolean {
   return url.includes('placeholder') || url.includes('example.com') || url.includes('localhost');
 }
 
+export function safeParseUser(raw?: string): any {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    const parsed = JSON.parse(decoded);
+    return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+  } catch {
+    try {
+      const parsed = JSON.parse(raw);
+      return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+    } catch {
+      return null;
+    }
+  }
+}
+
 function parseCookieUser(): any {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|;\s*)foundloop_session=([^;]+)/);
-  if (!match) return null;
-  try {
-    return JSON.parse(decodeURIComponent(match[1]));
-  } catch {
-    return null;
+  if (match) {
+    const parsed = safeParseUser(match[1]);
+    if (parsed) return parsed;
   }
+  try {
+    const local = localStorage.getItem('foundloop_session');
+    if (local) return safeParseUser(local);
+  } catch {}
+  return null;
 }
 
 class LocalQueryBuilder {
@@ -161,6 +180,13 @@ function createLocalClient(): any {
             }),
           });
           const json = await res.json();
+          if (json.data?.user && typeof document !== 'undefined') {
+            const userStr = JSON.stringify(json.data.user);
+            document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
+            try {
+              localStorage.setItem('foundloop_session', userStr);
+            } catch {}
+          }
           return json;
         } catch (err: any) {
           return {
@@ -181,6 +207,13 @@ function createLocalClient(): any {
             }),
           });
           const json = await res.json();
+          if (json.data?.user && typeof document !== 'undefined') {
+            const userStr = JSON.stringify(json.data.user);
+            document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
+            try {
+              localStorage.setItem('foundloop_session', userStr);
+            } catch {}
+          }
           return json;
         } catch (err: any) {
           return {
@@ -196,6 +229,9 @@ function createLocalClient(): any {
       async signOut() {
         if (typeof document !== 'undefined') {
           document.cookie = 'foundloop_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+          try {
+            localStorage.removeItem('foundloop_session');
+          } catch {}
         }
         try {
           await fetch('/api/local-db', {

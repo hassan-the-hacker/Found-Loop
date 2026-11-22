@@ -91,7 +91,7 @@ export default function ReportFoundPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/dashboard/found');
+        router.push('/dashboard');
       }, 1500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to submit report';

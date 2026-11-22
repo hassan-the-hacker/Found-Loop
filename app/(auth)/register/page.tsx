@@ -58,10 +58,16 @@ export default function RegisterPage() {
       }
 
       if (data?.user) {
+        if (typeof document !== 'undefined') {
+          const userStr = JSON.stringify(data.user);
+          document.cookie = `foundloop_session=${encodeURIComponent(userStr)}; path=/; max-age=604800; SameSite=Lax`;
+          try {
+            localStorage.setItem('foundloop_session', userStr);
+          } catch {}
+        }
         setSuccess(true);
         setTimeout(() => {
-          router.push('/dashboard');
-          router.refresh();
+          window.location.href = '/dashboard';
         }, 1000);
       }
     } catch (err: unknown) {

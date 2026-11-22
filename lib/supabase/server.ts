@@ -127,18 +127,26 @@ class ServerLocalQueryBuilder {
   }
 }
 
+export function safeParseUser(raw?: string): any {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    const parsed = JSON.parse(decoded);
+    return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+  } catch {
+    try {
+      const parsed = JSON.parse(raw);
+      return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+    } catch {
+      return null;
+    }
+  }
+}
+
 function createLocalServerClient(): any {
   const cookieStore = cookies();
   const sessionCookie = cookieStore.get('foundloop_session')?.value;
-
-  let currentUser: any = null;
-  if (sessionCookie) {
-    try {
-      currentUser = JSON.parse(decodeURIComponent(sessionCookie));
-    } catch {
-      currentUser = null;
-    }
-  }
+  const currentUser = safeParseUser(sessionCookie);
 
   return {
     auth: {

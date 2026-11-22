@@ -88,7 +88,7 @@ export default function ReportLostPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/dashboard/lost');
+        router.push('/dashboard');
       }, 1500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to submit report';
