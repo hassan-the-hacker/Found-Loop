@@ -1,0 +1,191 @@
+{
+  "profiles": [
+    {
+      "id": "usr_1795340880201_ko12h",
+      "created_at": "2026-11-22T09:48:00.203Z",
+      "email": "los-fou@yopmail.com",
+      "full_name": "hazyyy",
+      "role": "user"
+    },
+    {
+      "id": "usr_demo_admin",
+      "email": "admin@foundloop.in",
+      "full_name": "FoundLoop Admin",
+      "phone": "+91 98765 43210",
+      "role": "admin",
+      "created_at": "2026-11-01T10:00:00Z"
+    },
+    {
+      "id": "usr_demo_mod",
+      "email": "moderator@foundloop.in",
+      "full_name": "Campus Moderator",
+      "phone": "+91 98765 12345",
+      "role": "moderator",
+      "created_at": "2026-11-01T10:00:00Z"
+    }
+  ],
+  "lost_items": [
+    {
+      "id": "lost-item-001",
+      "user_id": "usr_demo_admin",
+      "title": "Blue Leather Wallet with Metro Card",
+      "category": "Wallets",
+      "brand": "Wildhorn",
+      "color": "Blue",
+      "description": "Lost my navy blue Wildhorn bi-fold leather wallet while boarding the yellow line metro.",
+      "lost_date": "2026-11-20",
+      "city": "Delhi",
+      "approx_location": "Rajiv Chowk Metro Station Gate 2",
+      "image_url": null,
+      "private_identifying_info": "Contains Delhi Metro card with balance and student ID card ending with 4421",
+      "status": "REPORTED",
+      "created_at": "2026-11-20T14:30:00Z"
+    },
+    {
+      "id": "lost-item-002",
+      "user_id": "usr_demo_admin",
+      "title": "Boat Airdopes 141 Charging Case (Black)",
+      "category": "Electronics",
+      "brand": "Boat",
+      "color": "Black",
+      "description": "Left behind my Boat wireless earphone charging case on the bench near the university library.",
+      "lost_date": "2026-11-19",
+      "city": "Delhi",
+      "approx_location": "Delhi University Arts Faculty",
+      "image_url": null,
+      "private_identifying_info": "Small scratch on the top lid, left bud has blue marker dot on base",
+      "status": "REPORTED",
+      "created_at": "2026-11-19T11:00:00Z"
+    },
+    {
+      "id": "lost-item-003",
+      "user_id": "usr_demo_admin",
+      "title": "Titan Workwear Quartz Watch",
+      "category": "Accessories",
+      "brand": "Titan",
+      "color": "Brown",
+      "description": "Titan analogue watch with dark brown leather strap, silver dial.",
+      "lost_date": "2026-11-21",
+      "city": "Mumbai",
+      "approx_location": "CST Suburban Platform 4",
+      "image_url": null,
+      "private_identifying_info": "Engraving on back case: 2024 Anniversary Gift",
+      "status": "REPORTED",
+      "created_at": "2026-11-21T09:15:00Z"
+    }
+  ],
+  "found_items": [
+    {
+      "id": "found-item-001",
+      "user_id": "usr_demo_mod",
+      "title": "Wildhorn Navy Blue Leather Mens Wallet",
+      "category": "Wallets",
+      "brand": "Wildhorn",
+      "color": "Blue",
+      "description": "Found a blue bi-fold leather wallet lying on the platform bench near the escalator.",
+      "found_date": "2026-11-20",
+      "city": "Delhi",
+      "approx_location": "Rajiv Chowk Metro Station Platform 2",
+      "image_url": null,
+      "custody_details": "Deposited at DMRC Station Control Room Rajiv Chowk",
+      "status": "AVAILABLE",
+      "created_at": "2026-11-20T16:00:00Z"
+    },
+    {
+      "id": "found-item-002",
+      "user_id": "usr_demo_mod",
+      "title": "Boat Wireless Earbuds Case Black",
+      "category": "Electronics",
+      "brand": "Boat",
+      "color": "Black",
+      "description": "Found black Boat earphone case with earbuds inside near the faculty canteen lawns.",
+      "found_date": "2026-11-19",
+      "city": "Delhi",
+      "approx_location": "Delhi University Arts Faculty Law Lawns",
+      "image_url": null,
+      "custody_details": "Kept with DU Proctor Office reception",
+      "status": "AVAILABLE",
+      "created_at": "2026-11-19T13:45:00Z"
+    },
+    {
+      "id": "found-item-003",
+      "user_id": "usr_demo_mod",
+      "title": "Silver Stainless Steel Digital Watch",
+      "category": "Accessories",
+      "brand": "Casio",
+      "color": "Silver",
+      "description": "Found metallic silver digital watch on seat at waiting hall.",
+      "found_date": "2026-11-21",
+      "city": "Mumbai",
+      "approx_location": "CST Waiting Hall Concourse",
+      "image_url": null,
+      "custody_details": "Handed over to RPF Help Desk CST Station",
+      "status": "AVAILABLE",
+      "created_at": "2026-11-21T18:00:00Z"
+    }
+  ],
+  "potential_matches": [
+    {
+      "id": "match-001",
+      "lost_item_id": "lost-item-001",
+      "found_item_id": "found-item-001",
+      "similarity_score": 85,
+      "tier": "HIGH",
+      "matched_fields": [
+        "category",
+        "brand",
+        "color",
+        "city",
+        "location",
+        "date"
+      ],
+      "reasons": [
+        "Exact match on category: Wallets",
+        "Exact match on brand: Wildhorn",
+        "Exact match on color: Blue",
+        "Exact match on city: Delhi",
+        "Same date report: 2026-11-20"
+      ],
+      "status": "SUGGESTED",
+      "created_at": "2026-11-20T16:05:00Z"
+    },
+    {
+      "id": "match-002",
+      "lost_item_id": "lost-item-002",
+      "found_item_id": "found-item-002",
+      "similarity_score": 80,
+      "tier": "HIGH",
+      "matched_fields": [
+        "category",
+        "brand",
+        "color",
+        "city",
+        "location",
+        "date"
+      ],
+      "reasons": [
+        "Exact match on category: Electronics",
+        "Exact match on brand: Boat",
+        "Exact match on color: Black",
+        "Exact match on city: Delhi",
+        "Same date report: 2026-11-19"
+      ],
+      "status": "SUGGESTED",
+      "created_at": "2026-11-19T14:00:00Z"
+    }
+  ],
+  "ownership_claims": [],
+  "reports_and_flags": [],
+  "registered_users": [
+    {
+      "id": "usr_1795340880201_ko12h",
+      "email": "los-fou@yopmail.com",
+      "password": "password123",
+      "user_metadata": {
+        "full_name": "hazyyy"
+      },
+      "role": "authenticated",
+      "created_at": "2026-11-22T09:48:00.201Z"
+    }
+  ]
+}

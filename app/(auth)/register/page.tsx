@@ -57,11 +57,12 @@ export default function RegisterPage() {
         return;
       }
 
-      if (data.user) {
+      if (data?.user) {
         setSuccess(true);
         setTimeout(() => {
           router.push('/dashboard');
-        }, 1500);
+          router.refresh();
+        }, 1000);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed';

@@ -2,16 +2,61 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { Database } from '@/types/database';
 
+function isPlaceholder(url?: string): boolean {
+  if (!url) return true;
+  return url.includes('placeholder') || url.includes('example.com') || url.includes('localhost');
+}
+
 export async function updateSession(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const isProtectedPath =
+    request.nextUrl.pathname.startsWith('/dashboard') ||
+    request.nextUrl.pathname.startsWith('/report') ||
+    request.nextUrl.pathname.startsWith('/claims');
+
+  const isAdminPath = request.nextUrl.pathname.startsWith('/admin');
+
+  // Handle local demo mode when placeholder URL is present
+  if (isPlaceholder(supabaseUrl) || !supabaseKey || supabaseKey.includes('placeholder')) {
+    const sessionCookie = request.cookies.get('foundloop_session')?.value;
+    let user: any = null;
+
+    if (sessionCookie) {
+      try {
+        user = JSON.parse(decodeURIComponent(sessionCookie));
+      } catch {
+        user = null;
+      }
+    }
+
+    if (!user && (isProtectedPath || isAdminPath)) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('redirectTo', request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+
+    if (user && isAdminPath) {
+      const isAdmin = user.email?.toLowerCase().includes('admin') || user.role === 'admin';
+      if (!isAdmin) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        return NextResponse.redirect(url);
+      }
+    }
+
+    return NextResponse.next();
+  }
+
+  // Cloud Supabase SSR mode
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
-
   const supabase = createServerClient<Database>(
-    supabaseUrl,
+    supabaseUrl!,
     supabaseKey,
     {
       cookies: {
@@ -35,14 +80,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isProtectedPath = 
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/report') ||
-    request.nextUrl.pathname.startsWith('/claims');
-
-  const isAdminPath = request.nextUrl.pathname.startsWith('/admin');
-
-  // If attempting to access protected route without user session
   if (!user && (isProtectedPath || isAdminPath)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -50,7 +87,6 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Admin route check
   if (user && isAdminPath) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -68,4 +104,3 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse;
 }
-
